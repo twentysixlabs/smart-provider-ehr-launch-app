@@ -1,0 +1,19 @@
+{
+  "CERNER_CLIENT_ID": "3665571d-4d4f-4796-8f50-95c6f4926d18",
+  "BASE_URL": "http://localhost:5173",
+  "SMART_SCOPES": [
+    "patient/Patient.read",
+    "patient/Observation.read",
+    "launch",
+    "online_access",
+    "openid",
+    "profile"
+  ],
+  "STORAGE_KEYS": {
+    "OAUTH_STATE": "oauth2-state",
+    "CODE_VERIFIER": "code-verifier",
+    "TOKEN_DATA": "token-data",
+    "AUTHORIZATION_URL": "authorization-url",
+    "TOKEN_URL": "token-url"
+  }
+}
