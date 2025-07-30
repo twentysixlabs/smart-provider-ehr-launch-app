@@ -69,34 +69,39 @@ async function exchangeCodeForToken({
     client_id: Config.CERNER_CLIENT_ID,
   };
 
-  const response = await fetch(tokenUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams(params).toString(),
-  });
+  try {
+    const response = await fetch(tokenUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams(params).toString(),
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    let errorMessage = `Token exchange failed: ${response.statusText}`;
+    if (!response.ok) {
+      const errorText = await response.text();
+      let errorMessage = `Token exchange failed: ${response.statusText}`;
 
-    try {
-      const errorData = JSON.parse(errorText);
-      if (errorData.error) {
-        errorMessage = `OAuth Error: ${errorData.error}`;
-        if (errorData.error_description) {
-          errorMessage += ` - ${errorData.error_description}`;
+      try {
+        const errorData = JSON.parse(errorText);
+        if (errorData.error) {
+          errorMessage = `OAuth Error: ${errorData.error}`;
+          if (errorData.error_description) {
+            errorMessage += ` - ${errorData.error_description}`;
+          }
         }
+      } catch {
+        errorMessage += ` - ${errorText}`;
       }
-    } catch {
-      errorMessage += ` - ${errorText}`;
+
+      throw new Error(errorMessage);
     }
 
-    throw new Error(errorMessage);
+    return response.json();
+  } catch (error) {
+    console.error("Token exchange error:", error);
+    throw error;
   }
-
-  return response.json();
 }
 
 export function useWellKnownMetadata(iss: string | null) {
@@ -124,34 +129,39 @@ async function refreshAccessToken({
     params.scope = scope;
   }
 
-  const response = await fetch(tokenUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams(params).toString(),
-  });
+  try {
+    const response = await fetch(tokenUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams(params).toString(),
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    let errorMessage = `Token refresh failed: ${response.statusText}`;
+    if (!response.ok) {
+      const errorText = await response.text();
+      let errorMessage = `Token refresh failed: ${response.statusText}`;
 
-    try {
-      const errorData = JSON.parse(errorText);
-      if (errorData.error) {
-        errorMessage = `OAuth Error: ${errorData.error}`;
-        if (errorData.error_description) {
-          errorMessage += ` - ${errorData.error_description}`;
+      try {
+        const errorData = JSON.parse(errorText);
+        if (errorData.error) {
+          errorMessage = `OAuth Error: ${errorData.error}`;
+          if (errorData.error_description) {
+            errorMessage += ` - ${errorData.error_description}`;
+          }
         }
+      } catch {
+        errorMessage += ` - ${errorText}`;
       }
-    } catch {
-      errorMessage += ` - ${errorText}`;
+
+      throw new Error(errorMessage);
     }
 
-    throw new Error(errorMessage);
+    return response.json();
+  } catch (error) {
+    console.error("Refresh token error:", error);
+    throw error;
   }
-
-  return response.json();
 }
 
 export function useTokenExchange() {

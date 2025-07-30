@@ -19,6 +19,10 @@ export function SmartInitialLogin() {
 
   useEffect(() => {
     if (iss && launch) {
+      // Clear any existing auth values to ensure fresh login
+      localStorage.removeItem(Config.STORAGE_KEYS.OAUTH_STATE);
+      localStorage.removeItem(Config.STORAGE_KEYS.CODE_VERIFIER);
+
       getCodeChallenge()
         .then(setCodeChallenge)
         .catch((error) => {
@@ -39,7 +43,7 @@ export function SmartInitialLogin() {
       }
 
       localStorage.setItem(
-        Config.STORAGE_KEYS.AUTHORIZATION_URL || "authorization-url",
+        Config.STORAGE_KEYS.AUTHORIZATION_URL,
         AUTHORIZATION_URL
       );
       localStorage.setItem(Config.STORAGE_KEYS.TOKEN_URL, TOKEN_URL);
@@ -59,6 +63,7 @@ export function SmartInitialLogin() {
       const authorizationUrl = `${AUTHORIZATION_URL}?${new URLSearchParams(
         params
       ).toString()}`;
+
       setAuthUrl(authorizationUrl);
     }
   }, [metadata, codeChallenge, iss, launch]);

@@ -12,6 +12,7 @@ export function SmartAuthCallback() {
   const { setToken } = useToken();
   const navigate = useNavigate();
   const [oauthError, setOauthError] = React.useState<string | null>(null);
+  const isProcessingRef = React.useRef(false);
 
   const tokenExchangeMutation = useTokenExchange();
 
@@ -26,7 +27,9 @@ export function SmartAuthCallback() {
       return;
     }
 
-    if (code && state) {
+    if (code && state && !isProcessingRef.current) {
+      isProcessingRef.current = true;
+
       const localState = getOAuth2State();
       if (state !== localState) {
         setOauthError("State mismatch in OAuth callback");
@@ -49,26 +52,25 @@ export function SmartAuthCallback() {
         return;
       }
 
-      tokenExchangeMutation.mutate(
-        {
+      tokenExchangeMutation
+        .mutateAsync({
           code,
           codeVerifier,
           tokenUrl,
-        },
-        {
-          onSuccess: (data) => {
-            console.log("Access Token received:", data);
-            setToken(data);
-            navigate(AppRoutes.Home);
-          },
-          onError: (error) => {
-            console.error("Token exchange failed:", error);
-            setOauthError(error.message);
-          },
-        }
-      );
+        })
+        .then((data) => {
+          setToken(data);
+          // Clear auth flow values after successful exchange
+          localStorage.removeItem(Config.STORAGE_KEYS.OAUTH_STATE);
+          localStorage.removeItem(Config.STORAGE_KEYS.CODE_VERIFIER);
+          navigate(AppRoutes.Home);
+        })
+        .catch((error) => {
+          console.error("Token exchange failed:", error);
+          setOauthError(error.message);
+        });
     }
-  }, [searchParams, navigate, setToken]);
+  }, [searchParams, navigate, setToken, tokenExchangeMutation]);
 
   return (
     <div className="container mx-auto p-8">

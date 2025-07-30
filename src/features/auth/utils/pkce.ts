@@ -1,13 +1,12 @@
 import Config from "../../../config.json";
 
-function dec2hex(dec: number) {
-  return dec.toString(16).padStart(2, "0");
-}
-
 function generateCodeVerifier() {
-  const array = new Uint32Array(56 / 2);
+  // Generate 32 random bytes = 64 hex characters (within 43-128 range)
+  const array = new Uint8Array(32);
   window.crypto.getRandomValues(array);
-  return Array.from(array, dec2hex).join("");
+  return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join(
+    ""
+  );
 }
 
 export function getCodeVerifier() {

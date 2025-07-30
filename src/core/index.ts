@@ -1,2 +1,2 @@
-export { AppRoutes } from './routing/AppRoutes';
-export { concatPath } from './utils/urlUtils';
+export { AppRoutes } from "./routing/AppRoutes";
+export { concatPath } from "./utils/urlUtils";
