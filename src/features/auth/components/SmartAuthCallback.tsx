@@ -2,6 +2,8 @@ import React, { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { AppRoutes } from "../../../core/routing/AppRoutes";
 import Config from "../../../config.json";
+import { storage } from "../../../core/storage";
+import type { StorageRepository } from "../../../core/storage";
 import { getOrCreateCodeVerifier } from "../utils/pkce";
 import { getOrCreateOAuthState } from "../utils/oauth-state";
 import { useToken } from "../hooks/useToken";
@@ -23,19 +25,20 @@ function validateOAuthResponse(params: OAuthCallbackParams): string | null {
 }
 
 function validateAuthFlowData(
-  state: string
+  state: string,
+  storage: StorageRepository
 ): {
   isValid: boolean;
   error?: string;
   tokenUrl?: string;
   codeVerifier?: string;
 } {
-  const localState = getOrCreateOAuthState();
+  const localState = getOrCreateOAuthState(storage);
   if (state !== localState) {
     return { isValid: false, error: "State mismatch in OAuth callback" };
   }
 
-  const tokenUrl = localStorage.getItem(Config.STORAGE_KEYS.TOKEN_URL);
+  const tokenUrl = storage.getItem(Config.STORAGE_KEYS.TOKEN_URL);
   if (!tokenUrl) {
     return {
       isValid: false,
@@ -43,7 +46,7 @@ function validateAuthFlowData(
     };
   }
 
-  const codeVerifier = getOrCreateCodeVerifier();
+  const codeVerifier = getOrCreateCodeVerifier(storage);
   if (!codeVerifier) {
     return {
       isValid: false,
@@ -80,7 +83,7 @@ export function SmartAuthCallback() {
     if (params.code && params.state && !hasInitiatedTokenExchange.current) {
       hasInitiatedTokenExchange.current = true;
 
-      const validation = validateAuthFlowData(params.state);
+      const validation = validateAuthFlowData(params.state, storage);
       if (!validation.isValid) {
         setOauthError(validation.error!);
         return;
@@ -94,8 +97,8 @@ export function SmartAuthCallback() {
         })
         .then((data) => {
           setToken(data);
-          localStorage.removeItem(Config.STORAGE_KEYS.OAUTH_STATE);
-          localStorage.removeItem(Config.STORAGE_KEYS.CODE_VERIFIER);
+          storage.removeItem(Config.STORAGE_KEYS.OAUTH_STATE);
+          storage.removeItem(Config.STORAGE_KEYS.CODE_VERIFIER);
           navigate(AppRoutes.Home);
         })
         .catch((error) => {

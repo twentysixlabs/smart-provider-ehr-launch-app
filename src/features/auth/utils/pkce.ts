@@ -1,4 +1,5 @@
 import Config from "../../../config.json";
+import type { StorageRepository } from "../../../core/storage/StorageRepository";
 
 /**
  * Generates a cryptographically random code verifier for PKCE flow
@@ -14,18 +15,16 @@ function generateRandomCodeVerifier(): string {
 
 /**
  * Retrieves the PKCE code verifier from storage or generates a new one
+ * @param storage The storage repository to use
  * @returns The code verifier string
  */
-export function getOrCreateCodeVerifier(): string {
-  const codeVerifier = localStorage.getItem(Config.STORAGE_KEYS.CODE_VERIFIER);
+export function getOrCreateCodeVerifier(storage: StorageRepository): string {
+  const codeVerifier = storage.getItem(Config.STORAGE_KEYS.CODE_VERIFIER);
   if (codeVerifier) {
     return codeVerifier;
   }
   const generatedCodeVerifier = generateRandomCodeVerifier();
-  localStorage.setItem(
-    Config.STORAGE_KEYS.CODE_VERIFIER,
-    generatedCodeVerifier
-  );
+  storage.setItem(Config.STORAGE_KEYS.CODE_VERIFIER, generatedCodeVerifier);
   return generatedCodeVerifier;
 }
 
@@ -70,12 +69,13 @@ async function generateCodeChallengeFromVerifier(
 
 /**
  * Gets or generates the PKCE code challenge for the current auth flow
+ * @param storage The storage repository to use
  * @returns Promise resolving to the code challenge string
  * @throws Error if code challenge generation fails
  */
-export async function generateCodeChallenge(): Promise<string> {
+export async function generateCodeChallenge(storage: StorageRepository): Promise<string> {
   try {
-    const codeVerifier = getOrCreateCodeVerifier();
+    const codeVerifier = getOrCreateCodeVerifier(storage);
     const codeChallenge = await generateCodeChallengeFromVerifier(codeVerifier);
     return codeChallenge;
   } catch (e) {

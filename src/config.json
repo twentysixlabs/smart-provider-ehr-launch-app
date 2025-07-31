@@ -15,5 +15,6 @@
     "TOKEN_DATA": "token-data",
     "AUTHORIZATION_URL": "authorization-url",
     "TOKEN_URL": "token-url"
-  }
+  },
+  "STORAGE_TYPE": "local"
 }

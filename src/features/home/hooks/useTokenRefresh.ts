@@ -1,5 +1,6 @@
 import React from "react";
 import Config from "../../../config.json";
+import { storage } from "../../../core/storage";
 import { useToken, useRefreshToken } from "../../auth";
 
 interface UseTokenRefreshReturn {
@@ -24,7 +25,7 @@ export function useTokenRefresh(): UseTokenRefreshReturn {
       return;
     }
 
-    const tokenUrl = localStorage.getItem(Config.STORAGE_KEYS.TOKEN_URL);
+    const tokenUrl = storage.getItem(Config.STORAGE_KEYS.TOKEN_URL);
     if (!tokenUrl) {
       setRefreshError("Token URL not found. Please log in again.");
       return;

@@ -3,6 +3,8 @@ import { useSearchParams } from "react-router-dom";
 import Config from "../../../config.json";
 import { AppRoutes } from "../../../core/routing/AppRoutes";
 import { concatPath } from "../../../core/utils/urlUtils";
+import { storage } from "../../../core/storage";
+import type { StorageRepository } from "../../../core/storage";
 import { generateCodeChallenge } from "../utils/pkce";
 import { getOrCreateOAuthState } from "../utils/oauth-state";
 import { useWellKnownMetadata } from "../hooks/useAuthQueries";
@@ -42,14 +44,18 @@ function buildAuthorizationUrl(params: AuthorizationParams): string {
   ).toString()}`;
 }
 
-function clearAuthFlowStorage(): void {
-  localStorage.removeItem(Config.STORAGE_KEYS.OAUTH_STATE);
-  localStorage.removeItem(Config.STORAGE_KEYS.CODE_VERIFIER);
+function clearAuthFlowStorage(storage: StorageRepository): void {
+  storage.removeItem(Config.STORAGE_KEYS.OAUTH_STATE);
+  storage.removeItem(Config.STORAGE_KEYS.CODE_VERIFIER);
 }
 
-function storeAuthEndpoints(authorizationUrl: string, tokenUrl: string): void {
-  localStorage.setItem(Config.STORAGE_KEYS.AUTHORIZATION_URL, authorizationUrl);
-  localStorage.setItem(Config.STORAGE_KEYS.TOKEN_URL, tokenUrl);
+function storeAuthEndpoints(
+  authorizationUrl: string,
+  tokenUrl: string,
+  storage: StorageRepository
+): void {
+  storage.setItem(Config.STORAGE_KEYS.AUTHORIZATION_URL, authorizationUrl);
+  storage.setItem(Config.STORAGE_KEYS.TOKEN_URL, tokenUrl);
 }
 
 export function SmartInitialLogin() {
@@ -64,9 +70,9 @@ export function SmartInitialLogin() {
   useEffect(() => {
     if (!iss || !launch || !metadata) return;
 
-    clearAuthFlowStorage();
+    clearAuthFlowStorage(storage);
 
-    generateCodeChallenge()
+    generateCodeChallenge(storage)
       .then((codeChallenge) => {
         const authorizationUrl = metadata.authorization_endpoint;
         const tokenUrl = metadata.token_endpoint;
@@ -76,7 +82,7 @@ export function SmartInitialLogin() {
           return;
         }
 
-        storeAuthEndpoints(authorizationUrl, tokenUrl);
+        storeAuthEndpoints(authorizationUrl, tokenUrl, storage);
 
         const url = buildAuthorizationUrl({
           authorizationUrl,
@@ -85,7 +91,7 @@ export function SmartInitialLogin() {
           redirectUri: concatPath(Config.BASE_URL, AppRoutes.CernerCallback),
           launch,
           scopes: Config.SMART_SCOPES,
-          state: getOrCreateOAuthState(),
+          state: getOrCreateOAuthState(storage),
           iss,
           codeChallenge,
         });
