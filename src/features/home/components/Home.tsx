@@ -14,7 +14,7 @@ export function Home() {
     <div className="container mx-auto p-8">
       <h1 className="text-3xl font-bold mb-4">Home</h1>
       <p className="mb-4">
-        Welcome to the Smart Provider EHR example application!
+        Welcome to the SMART on FHIR Provider EHR Launch example application!
       </p>
 
       {expiryInfo && (
