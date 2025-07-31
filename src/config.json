@@ -1,5 +1,7 @@
 {
+  "CLIENT_ID": "<replace_with_your_client_id>",
   "CERNER_CLIENT_ID": "3665571d-4d4f-4796-8f50-95c6f4926d18",
+  "EPIC_CLIENT_ID": "071a8dac-4d14-483b-83d6-a906a08f775a",
   "BASE_URL": "http://localhost:5173",
   "SMART_SCOPES": [
     "patient/Patient.read",

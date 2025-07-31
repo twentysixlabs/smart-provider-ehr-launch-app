@@ -87,7 +87,7 @@ export function SmartInitialLogin() {
         const url = buildAuthorizationUrl({
           authorizationUrl,
           tokenUrl,
-          clientId: Config.CERNER_CLIENT_ID,
+          clientId: Config.CLIENT_ID,
           redirectUri: concatPath(Config.BASE_URL, AppRoutes.SmartCallback),
           launch,
           scopes: Config.SMART_SCOPES,
@@ -104,9 +104,13 @@ export function SmartInitialLogin() {
   }, [iss, launch, metadata]);
 
   useEffect(() => {
-    if (authUrl) {
-      window.location.href = authUrl;
-    }
+    const timeout = setTimeout(() => {
+      if (authUrl) {
+        window.location.href = authUrl;
+      }
+    }, 1000);
+
+    return () => clearTimeout(timeout);
   }, [authUrl]);
 
   if (error) {
@@ -127,7 +131,10 @@ export function SmartInitialLogin() {
         <p>Loading authentication configuration...</p>
       ) : authUrl ? (
         <div>
-          <p>Click the link below to log in:</p>
+          <p>
+            If you are not automatically redirected, click the link below to log
+            in:
+          </p>
           <a className="text-blue-600 hover:underline" href={authUrl}>
             Login
           </a>

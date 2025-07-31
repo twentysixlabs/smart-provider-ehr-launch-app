@@ -9,7 +9,7 @@ Healthcare providers need applications that seamlessly integrate with their Elec
 - **Handles secure authentication**: Implements the OAuth 2.0 flow with PKCE (Proof Key for Code Exchange) for enhanced security
 - **Manages token lifecycle**: Includes token refresh functionality to maintain sessions without re-authentication
 
-## SMART on FHIR EHR Launch Flow
+## SMART on FHIR Provider EHR Launch Flow
 
 This app implements the [SMART App Launch Framework](https://build.fhir.org/ig/HL7/smart-app-launch/app-launch.html) EHR launch sequence:
 
@@ -36,7 +36,8 @@ This app implements the [SMART App Launch Framework](https://build.fhir.org/ig/H
 Tested with:
 
 - [SMART App Launcher](https://launch.smarthealthit.org) - Reference implementation
-- [Cerner's Code Console](https://code-console.cerner.com/)
+- [Cerner's Code Console Sandbox](https://code-console.cerner.com/)
+- [Epic's SMART on FHIR Sandbox](https://fhir.epic.com/Documentation?docId=launching)
 
 ## Documentation
 
@@ -62,7 +63,7 @@ Edit `src/config.json` to configure your app:
 
 ```json
 {
-  "CERNER_CLIENT_ID": "your-client-id", // This is a PUBLIC client ID, meant  to be used in untrusted clients like web browsers
+  "CLIENT_ID": "your-client-id", // This is a PUBLIC client ID, meant  to be used in untrusted clients like web browsers
   "BASE_URL": "http://localhost:5173",
   "STORAGE_TYPE": "local", // or "session"
   "SMART_SCOPES": [

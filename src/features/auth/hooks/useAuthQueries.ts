@@ -94,7 +94,7 @@ async function exchangeCodeForToken({
     code: code,
     redirect_uri: concatPath(Config.BASE_URL, AppRoutes.SmartCallback),
     code_verifier: codeVerifier,
-    client_id: Config.CERNER_CLIENT_ID,
+    client_id: Config.CLIENT_ID,
   };
 
   try {
@@ -141,7 +141,7 @@ async function refreshAccessToken({
   const params: Record<string, string> = {
     grant_type: "refresh_token",
     refresh_token: refresh_token,
-    client_id: Config.CERNER_CLIENT_ID,
+    client_id: Config.CLIENT_ID,
   };
 
   if (scope) {
