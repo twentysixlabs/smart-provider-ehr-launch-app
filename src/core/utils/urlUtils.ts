@@ -1,14 +1,5 @@
-export function getBaseURL(path: string) {
-  const url = new URL(path);
-  return url.origin;
-}
-
 export function concatPath(...args: string[]) {
   return urlJoin(...args);
-}
-
-export function isAbsolute(path: string) {
-  return !path.indexOf("/");
 }
 
 /**
@@ -16,7 +7,6 @@ export function isAbsolute(path: string) {
  * This works similar to `path.join` but you shouldn't use `path.join` for urls since it works
  * differently depending on the operating system and also doesn't work for some cases.
  */
-
 function normalize(strArray: string[]) {
   const resultArray: string[] = [];
   if (strArray.length === 0) {
@@ -53,14 +43,14 @@ function normalize(strArray: string[]) {
 
     if (i > 0) {
       // Removing the starting slashes for each component but the first.
-      component = component.replace(/^[\/]+/, "");
+      component = component.replace(/^[/]+/, "");
     }
     if (i < strArray.length - 1) {
       // Removing the ending slashes for each component but the last.
-      component = component.replace(/[\/]+$/, "");
+      component = component.replace(/[/]+$/, "");
     } else {
       // For the last component we will combine multiple slashes to a single one.
-      component = component.replace(/[\/]+$/, "/");
+      component = component.replace(/[/]+$/, "/");
     }
 
     resultArray.push(component);

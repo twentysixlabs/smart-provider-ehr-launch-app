@@ -44,7 +44,35 @@ type RefreshTokenParams = {
   scope?: string;
 };
 
-// API functions
+/**
+ * Parses OAuth error responses from the server
+ * @param response The HTTP response object
+ * @param errorText The response body as text
+ * @param operationType The type of operation that failed (e.g., "Token exchange", "Token refresh")
+ * @returns Formatted error message
+ */
+async function parseOAuthError(
+  response: Response,
+  errorText: string,
+  operationType: string
+): Promise<string> {
+  let errorMessage = `${operationType} failed: ${response.statusText}`;
+
+  try {
+    const errorData = JSON.parse(errorText);
+    if (errorData.error) {
+      errorMessage = `OAuth Error: ${errorData.error}`;
+      if (errorData.error_description) {
+        errorMessage += ` - ${errorData.error_description}`;
+      }
+    }
+  } catch {
+    errorMessage += ` - ${errorText}`;
+  }
+
+  return errorMessage;
+}
+
 async function fetchWellKnownMetadata(iss: string): Promise<WellKnownMetadata> {
   const url = `${iss}/.well-known/smart-configuration`;
   const response = await fetch(url);
@@ -80,20 +108,11 @@ async function exchangeCodeForToken({
 
     if (!response.ok) {
       const errorText = await response.text();
-      let errorMessage = `Token exchange failed: ${response.statusText}`;
-
-      try {
-        const errorData = JSON.parse(errorText);
-        if (errorData.error) {
-          errorMessage = `OAuth Error: ${errorData.error}`;
-          if (errorData.error_description) {
-            errorMessage += ` - ${errorData.error_description}`;
-          }
-        }
-      } catch {
-        errorMessage += ` - ${errorText}`;
-      }
-
+      const errorMessage = await parseOAuthError(
+        response,
+        errorText,
+        "Token exchange"
+      );
       throw new Error(errorMessage);
     }
 
@@ -140,20 +159,11 @@ async function refreshAccessToken({
 
     if (!response.ok) {
       const errorText = await response.text();
-      let errorMessage = `Token refresh failed: ${response.statusText}`;
-
-      try {
-        const errorData = JSON.parse(errorText);
-        if (errorData.error) {
-          errorMessage = `OAuth Error: ${errorData.error}`;
-          if (errorData.error_description) {
-            errorMessage += ` - ${errorData.error_description}`;
-          }
-        }
-      } catch {
-        errorMessage += ` - ${errorText}`;
-      }
-
+      const errorMessage = await parseOAuthError(
+        response,
+        errorText,
+        "Token refresh"
+      );
       throw new Error(errorMessage);
     }
 

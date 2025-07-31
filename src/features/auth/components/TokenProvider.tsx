@@ -1,15 +1,25 @@
 import React, { type PropsWithChildren, useMemo } from "react";
 import { TokenContext, type TokenData } from "../contexts/TokenContext";
 
+const MILLISECONDS_PER_SECOND = 1000;
+
+/**
+ * Calculates the token expiry timestamp from the expires_in value
+ * @param expiresIn Number of seconds until the token expires
+ * @returns Timestamp when the token will expire
+ */
+function calculateTokenExpiry(expiresIn: number): number {
+  return Date.now() + expiresIn * MILLISECONDS_PER_SECOND;
+}
+
 export function TokenProvider({ children }: PropsWithChildren<unknown>) {
   const [token, setTokenState] = React.useState<TokenData>(null);
 
   const setToken = React.useCallback((newToken: TokenData) => {
     if (newToken && newToken.expires_in) {
-      const expiryTime = Date.now() + newToken.expires_in * 1000;
       setTokenState({
         ...newToken,
-        token_expiry: expiryTime,
+        token_expiry: calculateTokenExpiry(newToken.expires_in),
       });
     } else {
       setTokenState(newToken);
@@ -24,7 +34,7 @@ export function TokenProvider({ children }: PropsWithChildren<unknown>) {
         const updatedToken = { ...currentToken, ...updates };
 
         if (updates.expires_in) {
-          updatedToken.token_expiry = Date.now() + updates.expires_in * 1000;
+          updatedToken.token_expiry = calculateTokenExpiry(updates.expires_in);
         }
 
         return updatedToken;

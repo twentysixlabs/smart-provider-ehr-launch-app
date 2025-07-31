@@ -3,14 +3,58 @@ import { useSearchParams } from "react-router-dom";
 import Config from "../../../config.json";
 import { AppRoutes } from "../../../core/routing/AppRoutes";
 import { concatPath } from "../../../core/utils/urlUtils";
-import { getCodeChallenge } from "../utils/pkce";
-import { getOAuth2State } from "../utils/oauth-state";
+import { generateCodeChallenge } from "../utils/pkce";
+import { getOrCreateOAuthState } from "../utils/oauth-state";
 import { useWellKnownMetadata } from "../hooks/useAuthQueries";
+
+interface AuthorizationParams {
+  authorizationUrl: string;
+  tokenUrl: string;
+  clientId: string;
+  redirectUri: string;
+  launch: string;
+  scopes: string[];
+  state: string;
+  iss: string;
+  codeChallenge: string;
+}
+
+/**
+ * Builds the authorization URL for SMART on FHIR OAuth flow
+ * @param params Authorization parameters including endpoints, client info, and PKCE challenge
+ * @returns Fully constructed authorization URL with query parameters
+ */
+function buildAuthorizationUrl(params: AuthorizationParams): string {
+  const queryParams = {
+    response_type: "code",
+    client_id: params.clientId,
+    redirect_uri: params.redirectUri,
+    launch: params.launch,
+    scope: params.scopes.join(" "),
+    state: params.state,
+    aud: params.iss,
+    code_challenge_method: "S256",
+    code_challenge: params.codeChallenge,
+  };
+
+  return `${params.authorizationUrl}?${new URLSearchParams(
+    queryParams
+  ).toString()}`;
+}
+
+function clearAuthFlowStorage(): void {
+  localStorage.removeItem(Config.STORAGE_KEYS.OAUTH_STATE);
+  localStorage.removeItem(Config.STORAGE_KEYS.CODE_VERIFIER);
+}
+
+function storeAuthEndpoints(authorizationUrl: string, tokenUrl: string): void {
+  localStorage.setItem(Config.STORAGE_KEYS.AUTHORIZATION_URL, authorizationUrl);
+  localStorage.setItem(Config.STORAGE_KEYS.TOKEN_URL, tokenUrl);
+}
 
 export function SmartInitialLogin() {
   const [searchParams] = useSearchParams();
   const [authUrl, setAuthUrl] = React.useState("");
-  const [codeChallenge, setCodeChallenge] = React.useState<string | null>(null);
 
   const iss = searchParams.get("iss");
   const launch = searchParams.get("launch");
@@ -18,55 +62,40 @@ export function SmartInitialLogin() {
   const { data: metadata, isLoading, error } = useWellKnownMetadata(iss);
 
   useEffect(() => {
-    if (iss && launch) {
-      // Clear any existing auth values to ensure fresh login
-      localStorage.removeItem(Config.STORAGE_KEYS.OAUTH_STATE);
-      localStorage.removeItem(Config.STORAGE_KEYS.CODE_VERIFIER);
+    if (!iss || !launch || !metadata) return;
 
-      getCodeChallenge()
-        .then(setCodeChallenge)
-        .catch((error) => {
-          console.error("Error generating code challenge:", error);
+    clearAuthFlowStorage();
+
+    generateCodeChallenge()
+      .then((codeChallenge) => {
+        const authorizationUrl = metadata.authorization_endpoint;
+        const tokenUrl = metadata.token_endpoint;
+
+        if (!tokenUrl || !authorizationUrl) {
+          console.error("Required URLs not found in metadata");
+          return;
+        }
+
+        storeAuthEndpoints(authorizationUrl, tokenUrl);
+
+        const url = buildAuthorizationUrl({
+          authorizationUrl,
+          tokenUrl,
+          clientId: Config.CERNER_CLIENT_ID,
+          redirectUri: concatPath(Config.BASE_URL, AppRoutes.CernerCallback),
+          launch,
+          scopes: Config.SMART_SCOPES,
+          state: getOrCreateOAuthState(),
+          iss,
+          codeChallenge,
         });
-    }
-  }, [iss, launch]);
 
-  // Build authorization URL when metadata and code challenge are ready
-  useEffect(() => {
-    if (metadata && codeChallenge && iss && launch) {
-      const AUTHORIZATION_URL = metadata.authorization_endpoint;
-      const TOKEN_URL = metadata.token_endpoint;
-
-      if (!TOKEN_URL || !AUTHORIZATION_URL) {
-        console.error("Required URLs not found in metadata");
-        return;
-      }
-
-      localStorage.setItem(
-        Config.STORAGE_KEYS.AUTHORIZATION_URL,
-        AUTHORIZATION_URL
-      );
-      localStorage.setItem(Config.STORAGE_KEYS.TOKEN_URL, TOKEN_URL);
-
-      const params = {
-        response_type: "code",
-        client_id: Config.CERNER_CLIENT_ID,
-        redirect_uri: concatPath(Config.BASE_URL, AppRoutes.CernerCallback),
-        launch: launch,
-        scope: Config.SMART_SCOPES.join(" "),
-        state: getOAuth2State(),
-        aud: iss,
-        code_challenge_method: "S256",
-        code_challenge: codeChallenge,
-      };
-
-      const authorizationUrl = `${AUTHORIZATION_URL}?${new URLSearchParams(
-        params
-      ).toString()}`;
-
-      setAuthUrl(authorizationUrl);
-    }
-  }, [metadata, codeChallenge, iss, launch]);
+        setAuthUrl(url);
+      })
+      .catch((error) => {
+        console.error("Error generating code challenge:", error);
+      });
+  }, [iss, launch, metadata]);
 
   useEffect(() => {
     if (authUrl) {

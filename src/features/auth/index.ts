@@ -3,5 +3,5 @@ export { SmartAuthCallback } from "./components/SmartAuthCallback";
 export { TokenProvider } from "./components/TokenProvider";
 export { useToken } from "./hooks/useToken";
 export { useRefreshToken } from "./hooks/useAuthQueries";
-export { getCodeVerifier, getCodeChallenge } from "./utils/pkce";
-export { getOAuth2State } from "./utils/oauth-state";
+export { getOrCreateCodeVerifier, generateCodeChallenge } from "./utils/pkce";
+export { getOrCreateOAuthState } from "./utils/oauth-state";
