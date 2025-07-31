@@ -12,11 +12,8 @@ function App() {
     <TokenProvider>
       <Routes>
         <Route path={AppRoutes.Home} element={<Home />} />
-        <Route path={AppRoutes.CernerLogin} element={<SmartInitialLogin />} />
-        <Route
-          path={AppRoutes.CernerCallback}
-          element={<SmartAuthCallback />}
-        />
+        <Route path={AppRoutes.SmartLogin} element={<SmartInitialLogin />} />
+        <Route path={AppRoutes.SmartCallback} element={<SmartAuthCallback />} />
       </Routes>
     </TokenProvider>
   );

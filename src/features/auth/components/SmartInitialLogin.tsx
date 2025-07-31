@@ -88,7 +88,7 @@ export function SmartInitialLogin() {
           authorizationUrl,
           tokenUrl,
           clientId: Config.CERNER_CLIENT_ID,
-          redirectUri: concatPath(Config.BASE_URL, AppRoutes.CernerCallback),
+          redirectUri: concatPath(Config.BASE_URL, AppRoutes.SmartCallback),
           launch,
           scopes: Config.SMART_SCOPES,
           state: getOrCreateOAuthState(storage),
@@ -122,7 +122,7 @@ export function SmartInitialLogin() {
 
   return (
     <div className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-4">Cerner Login</h1>
+      <h1 className="text-3xl font-bold mb-4">Smart Login</h1>
       {isLoading ? (
         <p>Loading authentication configuration...</p>
       ) : authUrl ? (

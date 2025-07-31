@@ -7,17 +7,15 @@ import { TokenDisplay } from "./TokenDisplay";
 export function Home() {
   const { token } = useToken();
   const expiryInfo = useTokenExpiryDisplay(token);
-  const {
-    refreshToken,
-    refreshError,
-    isRefreshing,
-    isSuccess,
-  } = useTokenRefresh();
+  const { refreshToken, refreshError, isRefreshing, isSuccess } =
+    useTokenRefresh();
 
   return (
     <div className="container mx-auto p-8">
       <h1 className="text-3xl font-bold mb-4">Home</h1>
-      <p className="mb-4">Welcome to the Cerner QI application!</p>
+      <p className="mb-4">
+        Welcome to the Smart Provider EHR example application!
+      </p>
 
       {expiryInfo && (
         <div

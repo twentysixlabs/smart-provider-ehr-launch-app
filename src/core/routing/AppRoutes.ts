@@ -1,5 +1,5 @@
 export enum AppRoutes {
-  CernerCallback = "/auth/cerner/callback",
-  CernerLogin = "/auth/cerner/login",
+  SmartCallback = "/auth/smart/callback",
+  SmartLogin = "/auth/smart/login",
   Home = "/",
 }

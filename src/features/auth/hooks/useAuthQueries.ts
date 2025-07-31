@@ -92,7 +92,7 @@ async function exchangeCodeForToken({
   const params = {
     grant_type: "authorization_code",
     code: code,
-    redirect_uri: concatPath(Config.BASE_URL, AppRoutes.CernerCallback),
+    redirect_uri: concatPath(Config.BASE_URL, AppRoutes.SmartCallback),
     code_verifier: codeVerifier,
     client_id: Config.CERNER_CLIENT_ID,
   };
