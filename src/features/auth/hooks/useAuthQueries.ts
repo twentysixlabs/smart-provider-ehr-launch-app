@@ -123,16 +123,6 @@ async function exchangeCodeForToken({
   }
 }
 
-export function useWellKnownMetadata(iss: string | null) {
-  return useQuery({
-    queryKey: ["wellKnownMetadata", iss],
-    queryFn: () => fetchWellKnownMetadata(iss!),
-    enabled: !!iss,
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    gcTime: 30 * 60 * 1000, // 30 minutes
-  });
-}
-
 async function refreshAccessToken({
   refresh_token,
   tokenUrl,
@@ -172,6 +162,16 @@ async function refreshAccessToken({
     console.error("Refresh token error:", error);
     throw error;
   }
+}
+
+export function useWellKnownMetadata(iss: string | null) {
+  return useQuery({
+    queryKey: ["wellKnownMetadata", iss],
+    queryFn: () => fetchWellKnownMetadata(iss!),
+    enabled: !!iss,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 30 * 60 * 1000, // 30 minutes
+  });
 }
 
 export function useTokenExchange() {

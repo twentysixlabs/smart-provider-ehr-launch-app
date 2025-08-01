@@ -37,7 +37,7 @@ Tested with:
 
 - [SMART App Launcher](https://launch.smarthealthit.org) - Reference implementation
 - [Cerner's Code Console Sandbox](https://code-console.cerner.com/)
-- [Epic's SMART on FHIR Sandbox](https://fhir.epic.com/Documentation?docId=launching)
+- [Epic's SMART on FHIR Sandbox (Must be logged in to see)](https://fhir.epic.com/Documentation?docId=launching)
 
 ## Documentation
 
@@ -63,17 +63,26 @@ Edit `src/config.json` to configure your app:
 
 ```json
 {
-  "CLIENT_ID": "your-client-id", // This is a PUBLIC client ID, meant  to be used in untrusted clients like web browsers
+  "CLIENT_ID": "your-client-id", // This is a PUBLIC client ID, meant to be used in untrusted clients like web browsers
   "BASE_URL": "http://localhost:5173",
   "STORAGE_TYPE": "local", // or "session"
   "SMART_SCOPES": [
-    "patient/Patient.read",
-    "patient/Observation.read",
     "launch",
-    "online_access",
+    "fhirUser",
+    "profile",
     "openid",
-    "profile"
-  ]
+    "patient/*.rs",
+    "user/*.rs",
+    "online_access"
+  ],
+  "STORAGE_KEYS": {
+    "OAUTH_STATE": "oauth2-state",
+    "CODE_VERIFIER": "code-verifier",
+    "TOKEN_DATA": "token-data",
+    "AUTHORIZATION_URL": "authorization-url",
+    "TOKEN_URL": "token-url",
+    "FHIR_BASE_URL": "fhir-base-url"
+  }
 }
 ```
 

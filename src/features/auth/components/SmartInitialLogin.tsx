@@ -58,6 +58,10 @@ function storeAuthEndpoints(
   storage.setItem(Config.STORAGE_KEYS.TOKEN_URL, tokenUrl);
 }
 
+function storeFHIRBaseUrl(iss: string, storage: StorageRepository): void {
+  storage.setItem(Config.STORAGE_KEYS.FHIR_BASE_URL, iss);
+}
+
 export function SmartInitialLogin() {
   const [searchParams] = useSearchParams();
   const [authUrl, setAuthUrl] = React.useState("");
@@ -84,6 +88,8 @@ export function SmartInitialLogin() {
 
         storeAuthEndpoints(authorizationUrl, tokenUrl, storage);
 
+        storeFHIRBaseUrl(iss, storage);
+
         const url = buildAuthorizationUrl({
           authorizationUrl,
           tokenUrl,
@@ -108,7 +114,7 @@ export function SmartInitialLogin() {
       if (authUrl) {
         window.location.href = authUrl;
       }
-    }, 1000);
+    }, 0);
 
     return () => clearTimeout(timeout);
   }, [authUrl]);

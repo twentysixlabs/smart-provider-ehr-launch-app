@@ -1,5 +1,7 @@
 import React, { type PropsWithChildren, useMemo } from "react";
 import { TokenContext, type TokenData } from "../contexts/TokenContext";
+import { storage } from "../../../core/storage";
+import Config from "../../../config.json";
 
 const MILLISECONDS_PER_SECOND = 1000;
 
@@ -13,16 +15,41 @@ function calculateTokenExpiry(expiresIn: number): number {
 }
 
 export function TokenProvider({ children }: PropsWithChildren<unknown>) {
-  const [token, setTokenState] = React.useState<TokenData>(null);
+  const [token, setTokenState] = React.useState<TokenData>(() => {
+    const storedToken = storage.getItem(Config.STORAGE_KEYS.TOKEN_DATA);
+    if (storedToken) {
+      try {
+        const parsedToken = JSON.parse(storedToken);
+        if (parsedToken.token_expiry && parsedToken.token_expiry < Date.now()) {
+          storage.removeItem(Config.STORAGE_KEYS.TOKEN_DATA);
+          return null;
+        }
+        return parsedToken;
+      } catch (error) {
+        console.error("Failed to parse stored token:", error);
+        storage.removeItem(Config.STORAGE_KEYS.TOKEN_DATA);
+      }
+    }
+    return null;
+  });
 
   const setToken = React.useCallback((newToken: TokenData) => {
     if (newToken && newToken.expires_in) {
-      setTokenState({
+      const tokenWithExpiry = {
         ...newToken,
         token_expiry: calculateTokenExpiry(newToken.expires_in),
-      });
-    } else {
+      };
+      setTokenState(tokenWithExpiry);
+      storage.setItem(
+        Config.STORAGE_KEYS.TOKEN_DATA,
+        JSON.stringify(tokenWithExpiry)
+      );
+    } else if (newToken) {
       setTokenState(newToken);
+      storage.setItem(Config.STORAGE_KEYS.TOKEN_DATA, JSON.stringify(newToken));
+    } else {
+      setTokenState(null);
+      storage.removeItem(Config.STORAGE_KEYS.TOKEN_DATA);
     }
   }, []);
 
@@ -36,6 +63,11 @@ export function TokenProvider({ children }: PropsWithChildren<unknown>) {
         if (updates.expires_in) {
           updatedToken.token_expiry = calculateTokenExpiry(updates.expires_in);
         }
+
+        storage.setItem(
+          Config.STORAGE_KEYS.TOKEN_DATA,
+          JSON.stringify(updatedToken)
+        );
 
         return updatedToken;
       });
