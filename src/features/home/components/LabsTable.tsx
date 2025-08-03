@@ -15,7 +15,38 @@ interface LabResult {
     date: Date;
     value: string | number;
     status: string;
+    interpretation?: string;
+    isAbnormal?: boolean;
   }[];
+}
+
+function isValueOutOfRange(value: string | number, normalRange?: string): boolean {
+  if (!normalRange || value === "N/A") return false;
+  
+  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(numValue)) return false;
+  
+  const dashMatch = normalRange.match(/^([\d.]+)-([\d.]+)$/);
+  if (dashMatch) {
+    const [, min, max] = dashMatch;
+    return numValue < parseFloat(min) || numValue > parseFloat(max);
+  }
+  
+  const lessMatch = normalRange.match(/^<=?([\d.]+)$/);
+  if (lessMatch) {
+    const [, max] = lessMatch;
+    const isLessOrEqual = normalRange.startsWith('<=');
+    return isLessOrEqual ? numValue > parseFloat(max) : numValue >= parseFloat(max);
+  }
+  
+  const greaterMatch = normalRange.match(/^>=?([\d.]+)$/);
+  if (greaterMatch) {
+    const [, min] = greaterMatch;
+    const isGreaterOrEqual = normalRange.startsWith('>=');
+    return isGreaterOrEqual ? numValue < parseFloat(min) : numValue <= parseFloat(min);
+  }
+  
+  return false;
 }
 
 export function LabsTable({
@@ -55,7 +86,9 @@ export function LabsTable({
       observation.code?.text ||
       observation.code?.coding?.[0]?.display ||
       "Unknown Lab";
-    const code = observation.code?.coding?.[0]?.code || "unknown";
+    
+    const loincCoding = observation.code?.coding?.find(c => c.system === "http://loinc.org");
+    const code = loincCoding?.code || observation.code?.coding?.[0]?.code || "unknown";
 
     let value: string | number = "N/A";
     let unit = "";
@@ -92,10 +125,21 @@ export function LabsTable({
       labResult.unit = unit;
     }
 
+    const interpretationText = observation.interpretation?.[0]?.text || 
+                             observation.interpretation?.[0]?.coding?.[0]?.display || "";
+    const isAbnormal = interpretationText.toLowerCase().includes('high') || 
+                      interpretationText.toLowerCase().includes('low') ||
+                      interpretationText.toLowerCase().includes('abnormal') ||
+                      observation.interpretation?.[0]?.coding?.some(c => 
+                        ['H', 'L', 'HH', 'LL', 'A', 'AA'].includes(c.code || '')
+                      ) || false;
+    
     labResult.results.push({
       date: effectiveDate,
       value: value,
       status: observation.status || "unknown",
+      interpretation: interpretationText,
+      isAbnormal: isAbnormal || isValueOutOfRange(value, labResult.normalRange),
     });
   });
 
@@ -113,10 +157,16 @@ export function LabsTable({
 
   const sortedDates = Array.from(allDates).sort((a, b) => b.localeCompare(a));
 
-  const displayDates = sortedDates.slice(0, 7);
+  const displayDates = sortedDates;
 
   return (
     <>
+      {sortedDates.length > 0 && (
+        <div className="mb-4 text-sm text-gray-600">
+          Showing all {sortedDates.length} test dates. 
+          Date range: {new Date(sortedDates[sortedDates.length - 1]).toLocaleDateString()} - {new Date(sortedDates[0]).toLocaleDateString()}
+        </div>
+      )}
       <div className="flow-root">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
@@ -125,13 +175,13 @@ export function LabsTable({
                 <tr>
                   <th
                     scope="col"
-                    className="py-3.5 pr-3 pl-4 text-left text-sm font-semibold whitespace-nowrap text-gray-900 sm:pl-0"
+                    className="sticky left-0 z-10 bg-white py-3.5 pr-3 pl-4 text-left text-sm font-semibold whitespace-nowrap text-gray-900 sm:pl-0 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"
                   >
                     Lab Test
                   </th>
                   <th
                     scope="col"
-                    className="px-2 py-3.5 text-left text-sm font-semibold whitespace-nowrap text-gray-900"
+                    className="sticky left-[120px] z-10 bg-white px-2 py-3.5 text-left text-sm font-semibold whitespace-nowrap text-gray-900 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"
                   >
                     Normal Range
                   </th>
@@ -152,10 +202,10 @@ export function LabsTable({
               <tbody className="divide-y divide-gray-200 bg-white">
                 {labs.map((lab) => (
                   <tr key={lab.code}>
-                    <td className="py-2 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900 sm:pl-0">
+                    <td className="sticky left-0 z-10 bg-white py-2 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900 sm:pl-0 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                       {lab.name}
                     </td>
-                    <td className="px-2 py-2 text-sm whitespace-nowrap text-gray-500">
+                    <td className="sticky left-[120px] z-10 bg-white px-2 py-2 text-sm whitespace-nowrap text-gray-500 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                       {lab.normalRange || "—"}
                     </td>
                     {displayDates.map((date) => {
@@ -168,11 +218,16 @@ export function LabsTable({
                           className="px-2 py-2 text-sm text-center whitespace-nowrap text-gray-900"
                         >
                           {result ? (
-                            <span>
+                            <span className={result.isAbnormal ? "text-red-600 font-medium" : ""}>
                               {result.value}
                               {lab.unit && (
-                                <span className="text-gray-500 ml-1">
+                                <span className={result.isAbnormal ? "text-red-500 ml-1" : "text-gray-500 ml-1"}>
                                   {lab.unit}
+                                </span>
+                              )}
+                              {result.isAbnormal && result.interpretation && (
+                                <span className="block text-xs text-red-500 mt-1">
+                                  {result.interpretation}
                                 </span>
                               )}
                             </span>

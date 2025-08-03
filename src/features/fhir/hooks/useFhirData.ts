@@ -6,9 +6,9 @@ export class FhirError extends Error {
     this.statusCode = statusCode;
   }
 }
-import { useQuery } from "@tanstack/react-query";
 import type { TokenData } from "../../auth/contexts/TokenContext";
 import type { Bundle, Encounter, Patient } from "fhir/r4";
+import { useFhirQueryWithRefresh } from "./useFhirDataWithRefresh";
 
 /**
  * Parses FHIR error responses from the server
@@ -214,7 +214,7 @@ export function useR4PatientData(
   accessToken: string,
   tokenData: TokenData | null
 ) {
-  return useQuery<Patient, Error>({
+  return useFhirQueryWithRefresh<Patient>({
     queryKey: ["r4PatientData", iss, accessToken, tokenData?.patient],
     queryFn: () => {
       if (!iss || !accessToken || !tokenData) {
@@ -227,15 +227,6 @@ export function useR4PatientData(
     enabled: !!iss && !!accessToken && !!tokenData?.patient,
     staleTime: 5 * 60 * 1000,
     gcTime: 15 * 60 * 1000,
-    retry: (failureCount, error) => {
-      if (
-        error instanceof FhirError &&
-        (error.statusCode === 401 || error.statusCode === 403)
-      ) {
-        return false;
-      }
-      return failureCount < 3;
-    },
   });
 }
 
@@ -244,7 +235,7 @@ export function useR4EncounterData(
   accessToken: string,
   encounterId: string | undefined
 ) {
-  return useQuery<Encounter, Error>({
+  return useFhirQueryWithRefresh<Encounter>({
     queryKey: ["r4EncounterData", iss, accessToken, encounterId],
     queryFn: () => {
       if (!iss || !accessToken || !encounterId) {
@@ -257,15 +248,6 @@ export function useR4EncounterData(
     enabled: !!iss && !!accessToken && !!encounterId,
     staleTime: 5 * 60 * 1000,
     gcTime: 15 * 60 * 1000,
-    retry: (failureCount, error) => {
-      if (
-        error instanceof FhirError &&
-        (error.statusCode === 401 || error.statusCode === 403)
-      ) {
-        return false;
-      }
-      return failureCount < 3;
-    },
   });
 }
 
@@ -274,7 +256,7 @@ export function useR4ObservationsData(
   accessToken: string,
   patientId: string | undefined
 ) {
-  return useQuery<Bundle, Error>({
+  return useFhirQueryWithRefresh<Bundle>({
     queryKey: ["r4ObservationsData", iss, accessToken, patientId],
     queryFn: () => {
       if (!iss || !accessToken || !patientId) {
@@ -289,15 +271,6 @@ export function useR4ObservationsData(
     enabled: !!iss && !!accessToken && !!patientId,
     staleTime: 2 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
-    retry: (failureCount, error) => {
-      if (
-        error instanceof FhirError &&
-        (error.statusCode === 401 || error.statusCode === 403)
-      ) {
-        return false;
-      }
-      return failureCount < 3;
-    },
   });
 }
 
@@ -306,18 +279,12 @@ export function useR4MedicationData(
   accessToken: string,
   patientId: string | undefined
 ) {
-  return useQuery<Bundle, Error>({
+  return useFhirQueryWithRefresh<Bundle>({
     queryKey: ["r4MedicationData", iss, accessToken, patientId],
     queryFn: () => fetchR4MedicationData(iss!, accessToken, patientId!),
     enabled: !!iss && !!accessToken && !!patientId,
     staleTime: 5 * 60 * 1000,
     gcTime: 15 * 60 * 1000,
-    retry: (failureCount, error) => {
-      if (error.message.includes("401") || error.message.includes("403")) {
-        return false;
-      }
-      return failureCount < 3;
-    },
   });
 }
 
@@ -326,18 +293,12 @@ export function useR4ConditionData(
   accessToken: string,
   patientId: string | undefined
 ) {
-  return useQuery<Bundle, Error>({
+  return useFhirQueryWithRefresh<Bundle>({
     queryKey: ["r4ConditionData", iss, accessToken, patientId],
     queryFn: () => fetchR4ConditionData(iss!, accessToken, patientId!),
     enabled: !!iss && !!accessToken && !!patientId,
     staleTime: 5 * 60 * 1000,
     gcTime: 15 * 60 * 1000,
-    retry: (failureCount, error) => {
-      if (error.message.includes("401") || error.message.includes("403")) {
-        return false;
-      }
-      return failureCount < 3;
-    },
   });
 }
 
@@ -346,18 +307,12 @@ export function useR4AllergyIntoleranceData(
   accessToken: string,
   patientId: string | undefined
 ) {
-  return useQuery<Bundle, Error>({
+  return useFhirQueryWithRefresh<Bundle>({
     queryKey: ["r4AllergyIntoleranceData", iss, accessToken, patientId],
     queryFn: () => fetchR4AllergyIntoleranceData(iss!, accessToken, patientId!),
     enabled: !!iss && !!accessToken && !!patientId,
     staleTime: 5 * 60 * 1000,
     gcTime: 15 * 60 * 1000,
-    retry: (failureCount, error) => {
-      if (error.message.includes("401") || error.message.includes("403")) {
-        return false;
-      }
-      return failureCount < 3;
-    },
   });
 }
 
@@ -366,18 +321,12 @@ export function useR4ImmunizationData(
   accessToken: string,
   patientId: string | undefined
 ) {
-  return useQuery<Bundle, Error>({
+  return useFhirQueryWithRefresh<Bundle>({
     queryKey: ["r4ImmunizationData", iss, accessToken, patientId],
     queryFn: () => fetchR4ImmunizationData(iss!, accessToken, patientId!),
     enabled: !!iss && !!accessToken && !!patientId,
     staleTime: 5 * 60 * 1000,
     gcTime: 15 * 60 * 1000,
-    retry: (failureCount, error) => {
-      if (error.message.includes("401") || error.message.includes("403")) {
-        return false;
-      }
-      return failureCount < 3;
-    },
   });
 }
 
@@ -386,18 +335,12 @@ export function useR4DeviceData(
   accessToken: string,
   patientId: string | undefined
 ) {
-  return useQuery<Bundle, Error>({
+  return useFhirQueryWithRefresh<Bundle>({
     queryKey: ["r4DeviceData", iss, accessToken, patientId],
     queryFn: () => fetchR4DeviceData(iss!, accessToken, patientId!),
     enabled: !!iss && !!accessToken && !!patientId,
     staleTime: 5 * 60 * 1000,
     gcTime: 15 * 60 * 1000,
-    retry: (failureCount, error) => {
-      if (error.message.includes("401") || error.message.includes("403")) {
-        return false;
-      }
-      return failureCount < 3;
-    },
   });
 }
 
@@ -406,17 +349,11 @@ export function useR4VitalSignsData(
   accessToken: string,
   patientId: string | undefined
 ) {
-  return useQuery<Bundle, Error>({
+  return useFhirQueryWithRefresh<Bundle>({
     queryKey: ["r4VitalSignsData", iss, accessToken, patientId],
     queryFn: () => fetchR4VitalSignsData(iss!, accessToken, patientId!),
     enabled: !!iss && !!accessToken && !!patientId,
     staleTime: 2 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
-    retry: (failureCount, error) => {
-      if (error.message.includes("401") || error.message.includes("403")) {
-        return false;
-      }
-      return failureCount < 3;
-    },
   });
 }

@@ -145,7 +145,9 @@ export function Home() {
                     <DataCard
                       title="Vital Signs"
                       icon={<Heart className="h-5 w-5" />}
-                      count={vitalSignsData?.total}
+                      count={
+                        vitalSignsData?.total || vitalSignsData?.entry?.length
+                      }
                       isLoading={isLoadingVitalSigns}
                       error={vitalSignsError}
                     >
@@ -156,8 +158,9 @@ export function Home() {
                               .slice(0, 5)
                               .map((entry, index) => {
                                 const resource = entry.resource as any;
-                                
-                                const bloodPressure = extractBloodPressureComponents(resource);
+
+                                const bloodPressure =
+                                  extractBloodPressureComponents(resource);
                                 if (bloodPressure) {
                                   return (
                                     <div key={index} className="text-sm">
@@ -165,7 +168,9 @@ export function Home() {
                                         {bloodPressure.display}:
                                       </span>{" "}
                                       <span className="text-gray-600">
-                                        {bloodPressure.systolic}/{bloodPressure.diastolic} {bloodPressure.unit}
+                                        {bloodPressure.systolic}/
+                                        {bloodPressure.diastolic}{" "}
+                                        {bloodPressure.unit}
                                       </span>
                                     </div>
                                   );
@@ -175,7 +180,9 @@ export function Home() {
                                   return (
                                     <div key={index} className="text-sm">
                                       <span className="font-medium">
-                                        {(resource as any).code?.text || "Unknown"}:
+                                        {(resource as any).code?.text ||
+                                          "Unknown"}
+                                        :
                                       </span>{" "}
                                       <span className="text-gray-600">
                                         {(resource as any).valueQuantity.value}{" "}
@@ -199,7 +206,7 @@ export function Home() {
                     <DataCard
                       title="Medications"
                       icon={<Pill className="h-5 w-5" />}
-                      count={medicationData?.total}
+                      count={medicationData?.total || medicationData?.entry?.length}
                       isLoading={isLoadingMedications}
                       error={medicationError}
                     >
@@ -211,10 +218,10 @@ export function Home() {
                               .map((entry, index) => (
                                 <div key={index} className="text-sm">
                                   <span className="font-medium">
-                                    {(entry.resource as any)?.medicationCodeableConcept
-                                      ?.text ||
-                                      (entry.resource as any)?.medicationReference
-                                        ?.display ||
+                                    {(entry.resource as any)
+                                      ?.medicationCodeableConcept?.text ||
+                                      (entry.resource as any)
+                                        ?.medicationReference?.display ||
                                       "Unknown medication"}
                                   </span>
                                 </div>
@@ -231,7 +238,7 @@ export function Home() {
                     <DataCard
                       title="Conditions"
                       icon={<Stethoscope className="h-5 w-5" />}
-                      count={conditionData?.total}
+                      count={conditionData?.total || conditionData?.entry?.length}
                       isLoading={isLoadingConditions}
                       error={conditionError}
                     >
@@ -260,27 +267,28 @@ export function Home() {
                     <DataCard
                       title="Allergies"
                       icon={<AlertCircle className="h-5 w-5" />}
-                      count={allergyData?.total}
+                      count={allergyData?.total || allergyData?.entry?.length}
                       isLoading={isLoadingAllergies}
                       error={allergyError}
                     >
                       {allergyData?.entry && allergyData.entry.length > 0 && (
                         <div className="space-y-2">
-                          {allergyData.entry
-                            .slice(0, 3)
-                            .map((entry, index) => (
-                              <div key={index} className="text-sm">
-                                <span className="font-medium">
-                                  {(entry.resource as any)?.code?.text ||
-                                    "Unknown allergy"}
+                          {allergyData.entry.slice(0, 3).map((entry, index) => (
+                            <div key={index} className="text-sm">
+                              <span className="font-medium">
+                                {(entry.resource as any)?.code?.text ||
+                                  "Unknown allergy"}
+                              </span>
+                              {(entry.resource as any)?.reaction?.[0]
+                                ?.severity && (
+                                <span className="ml-2 text-xs text-red-600">
+                                  (
+                                  {(entry.resource as any).reaction[0].severity}
+                                  )
                                 </span>
-                                {(entry.resource as any)?.reaction?.[0]?.severity && (
-                                  <span className="ml-2 text-xs text-red-600">
-                                    ({(entry.resource as any).reaction[0].severity})
-                                  </span>
-                                )}
-                              </div>
-                            ))}
+                              )}
+                            </div>
+                          ))}
                           {allergyData.entry.length > 3 && (
                             <p className="text-xs text-gray-500">
                               +{allergyData.entry.length - 3} more
@@ -293,7 +301,7 @@ export function Home() {
                     <DataCard
                       title="Immunizations"
                       icon={<Syringe className="h-5 w-5" />}
-                      count={immunizationData?.total}
+                      count={immunizationData?.total || immunizationData?.entry?.length}
                       isLoading={isLoadingImmunizations}
                       error={immunizationError}
                     >
@@ -305,8 +313,8 @@ export function Home() {
                               .map((entry, index) => (
                                 <div key={index} className="text-sm">
                                   <span className="font-medium">
-                                    {(entry.resource as any)?.vaccineCode?.text ||
-                                      "Unknown vaccine"}
+                                    {(entry.resource as any)?.vaccineCode
+                                      ?.text || "Unknown vaccine"}
                                   </span>
                                 </div>
                               ))}
@@ -322,23 +330,22 @@ export function Home() {
                     <DataCard
                       title="Medical Devices"
                       icon={<Smartphone className="h-5 w-5" />}
-                      count={deviceData?.total}
+                      count={deviceData?.total || deviceData?.entry?.length}
                       isLoading={isLoadingDevices}
                       error={deviceError}
                     >
                       {deviceData?.entry && deviceData.entry.length > 0 && (
                         <div className="space-y-2">
-                          {deviceData.entry
-                            .slice(0, 3)
-                            .map((entry, index) => (
-                              <div key={index} className="text-sm">
-                                <span className="font-medium">
-                                  {(entry.resource as any)?.deviceName?.[0]?.name ||
-                                    (entry.resource as any)?.type?.text ||
-                                    "Unknown device"}
-                                </span>
-                              </div>
-                            ))}
+                          {deviceData.entry.slice(0, 3).map((entry, index) => (
+                            <div key={index} className="text-sm">
+                              <span className="font-medium">
+                                {(entry.resource as any)?.deviceName?.[0]
+                                  ?.name ||
+                                  (entry.resource as any)?.type?.text ||
+                                  "Unknown device"}
+                              </span>
+                            </div>
+                          ))}
                           {deviceData.entry.length > 3 && (
                             <p className="text-xs text-gray-500">
                               +{deviceData.entry.length - 3} more
