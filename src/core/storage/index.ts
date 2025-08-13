@@ -1,5 +1,5 @@
 import { LocalStorageRepository, SessionStorageRepository } from "./StorageRepository";
-import Config from "../../config.json";
+import Config from "../../environment/config.json";
 
 export type { StorageRepository } from "./StorageRepository";
 export { LocalStorageRepository, SessionStorageRepository } from "./StorageRepository";

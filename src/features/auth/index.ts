@@ -1,7 +1,11 @@
 export { SmartInitialLogin } from "./components/SmartInitialLogin";
 export { SmartAuthCallback } from "./components/SmartAuthCallback";
 export { TokenProvider } from "./components/TokenProvider";
+export { TokenDisplay } from "./components/TokenDisplay";
 export { useToken } from "./hooks/useToken";
 export { useRefreshToken } from "./hooks/useAuthQueries";
+export { useTokenRefresh } from "./hooks/useTokenRefresh";
+export { useTokenExpiryDisplay } from "./hooks/useTokenExpiryDisplay";
+export { tokenRefreshManager } from "./hooks/useTokenRefreshManager";
 export { getOrCreateCodeVerifier, generateCodeChallenge } from "./utils/pkce";
 export { getOrCreateOAuthState } from "./utils/oauth-state";

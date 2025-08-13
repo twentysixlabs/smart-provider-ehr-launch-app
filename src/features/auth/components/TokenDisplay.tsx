@@ -1,4 +1,4 @@
-import type { TokenData } from "../../auth/contexts/TokenContext";
+import type { TokenData } from "../contexts/TokenContext";
 
 interface TokenDisplayProps {
   token: TokenData;

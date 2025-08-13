@@ -1,6 +1,6 @@
 # Provider EHR Launch SMART on FHIR App
 
-A modern React implementation of a SMART on FHIR application demonstrating the EHR launch flow for provider-facing clinical applications.
+A modern React implementation of a SMART on FHIR application demonstrating the EHR launch flow for provider-facing clinical applications. Note that this implementation is completely client-side and can be hosted on any static file server.
 
 Healthcare providers need applications that seamlessly integrate with their Electronic Health Record (EHR) systems. This repository demonstrates how to build a SMART on FHIR app that:
 
@@ -69,7 +69,7 @@ npm install
 
 ### Configuration
 
-Edit `src/config.json` to configure your app:
+Edit `src/environment/config.json` to configure your app:
 
 ```json
 {

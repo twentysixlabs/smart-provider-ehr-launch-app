@@ -1,4 +1,5 @@
 import type { Bundle, Observation } from "fhir/r4";
+import { roundToTwoDecimalsOrInteger } from "../../fhir/utils/fhirUtils";
 
 interface LabsTableProps {
   observationsData: Bundle | null;
@@ -94,7 +95,7 @@ export function LabsTable({
     let unit = "";
 
     if (observation.valueQuantity) {
-      value = observation.valueQuantity.value || "N/A";
+      value = observation.valueQuantity.value ? roundToTwoDecimalsOrInteger(observation.valueQuantity.value) : "N/A";
       unit = observation.valueQuantity.unit || "";
     } else if (observation.valueString) {
       value = observation.valueString;
@@ -219,7 +220,7 @@ export function LabsTable({
                         >
                           {result ? (
                             <span className={result.isAbnormal ? "text-red-600 font-medium" : ""}>
-                              {result.value}
+                              {typeof result.value === 'number' ? roundToTwoDecimalsOrInteger(result.value) : result.value}
                               {lab.unit && (
                                 <span className={result.isAbnormal ? "text-red-500 ml-1" : "text-gray-500 ml-1"}>
                                   {lab.unit}

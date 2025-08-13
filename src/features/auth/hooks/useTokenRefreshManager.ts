@@ -1,7 +1,7 @@
 /* cspell:ignore Fhir FHIR cooldown COOLDOWN */
 import { storage } from "../../../core/storage";
-import Config from "../../../config.json";
-import type { TokenData } from "../../auth/contexts/TokenContext";
+import Config from "../../../environment/config.json";
+import type { TokenData } from "../contexts/TokenContext";
 
 interface RefreshTokenParams {
   refresh_token: string;

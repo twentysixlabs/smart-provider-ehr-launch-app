@@ -1,7 +1,7 @@
 import React, { type PropsWithChildren, useMemo } from "react";
 import { TokenContext, type TokenData } from "../contexts/TokenContext";
 import { storage } from "../../../core/storage";
-import Config from "../../../config.json";
+import Config from "../../../environment/config.json";
 
 const MILLISECONDS_PER_SECOND = 1000;
 

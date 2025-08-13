@@ -5,6 +5,19 @@ export interface BloodPressureData {
   display: string;
 }
 
+export function roundToTwoDecimalsOrInteger(num: number): number {
+  // Add a tiny epsilon to handle floating point precision issues
+  // e.g., 2.155 * 100 = 215.49999999999997 in JavaScript
+  const EPSILON = 1e-10;
+  const roundedNum = Math.round((num + EPSILON) * 100) / 100;
+  
+  if (roundedNum % 1 === 0) {
+    return Math.trunc(roundedNum);
+  } else {
+    return roundedNum;
+  }
+}
+
 export function extractBloodPressureComponents(resource: any): BloodPressureData | null {
   if (!resource?.component || resource.component.length === 0) {
     return null;
@@ -29,8 +42,8 @@ export function extractBloodPressureComponents(resource: any): BloodPressureData
   }
 
   return {
-    systolic: systolic.valueQuantity.value,
-    diastolic: diastolic.valueQuantity.value,
+    systolic: roundToTwoDecimalsOrInteger(systolic.valueQuantity.value),
+    diastolic: roundToTwoDecimalsOrInteger(diastolic.valueQuantity.value),
     unit: systolic.valueQuantity?.unit || "mmHg",
     display: resource.code?.text || "Blood Pressure"
   };

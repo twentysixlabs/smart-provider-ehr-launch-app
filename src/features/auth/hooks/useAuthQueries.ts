@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppRoutes } from "../../../core/routing/AppRoutes";
 import { concatPath } from "../../../core/utils/urlUtils";
-import Config from "../../../config.json";
+import Config from "../../../environment/config.json";
 
 type WellKnownMetadata = {
   issuer: string;

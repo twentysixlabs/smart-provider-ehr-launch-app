@@ -4,7 +4,7 @@ import type { TokenData } from "../../auth/contexts/TokenContext";
 import { useToken } from "../../auth";
 import { useRefreshToken } from "../../auth";
 import { FhirError } from "./useFhirData";
-import { tokenRefreshManager } from "./useTokenRefreshManager";
+import { tokenRefreshManager } from "../../auth/hooks/useTokenRefreshManager";
 
 interface UseFhirQueryOptions<T> {
   queryKey: (string | undefined | null)[];

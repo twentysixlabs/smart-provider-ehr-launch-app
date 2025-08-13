@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { AppRoutes } from "../../../core/routing/AppRoutes";
-import Config from "../../../config.json";
+import Config from "../../../environment/config.json";
 import { storage } from "../../../core/storage";
 import type { StorageRepository } from "../../../core/storage";
 import { getOrCreateCodeVerifier } from "../utils/pkce";
@@ -99,7 +99,7 @@ export function SmartAuthCallback() {
           setToken(data);
           storage.removeItem(Config.STORAGE_KEYS.OAUTH_STATE);
           storage.removeItem(Config.STORAGE_KEYS.CODE_VERIFIER);
-          navigate(AppRoutes.Home);
+          navigate(AppRoutes.PatientData);
         })
         .catch((error) => {
           console.error("Token exchange failed:", error);

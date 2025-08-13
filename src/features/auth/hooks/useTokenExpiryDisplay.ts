@@ -1,5 +1,5 @@
 import React from "react";
-import type { TokenData } from "../../auth/contexts/TokenContext";
+import type { TokenData } from "../contexts/TokenContext";
 
 const MILLISECONDS_PER_SECOND = 1000;
 const MILLISECONDS_PER_MINUTE = 60000;

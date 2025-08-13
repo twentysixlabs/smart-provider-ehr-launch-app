@@ -1,7 +1,8 @@
 import React from "react";
-import Config from "../../../config.json";
+import Config from "../../../environment/config.json";
 import { storage } from "../../../core/storage";
-import { useToken, useRefreshToken } from "../../auth";
+import { useToken } from "./useToken";
+import { useRefreshToken } from "./useAuthQueries";
 
 interface UseTokenRefreshReturn {
   refreshToken: () => void;

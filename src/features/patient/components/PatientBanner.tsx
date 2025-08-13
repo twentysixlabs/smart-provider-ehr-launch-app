@@ -4,7 +4,7 @@ import { MapPin } from "lucide-react";
 import { useR4EncounterData } from "../../fhir/hooks/useFhirData";
 import { useToken } from "../../auth";
 import { storage } from "../../../core/storage";
-import Config from "../../../config.json";
+import Config from "../../../environment/config.json";
 
 type Patient = fhir4.Patient;
 

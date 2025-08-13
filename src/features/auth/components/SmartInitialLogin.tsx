@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import Config from "../../../config.json";
+import Config from "../../../environment/config.json";
 import { AppRoutes } from "../../../core/routing/AppRoutes";
 import { concatPath } from "../../../core/utils/urlUtils";
 import { storage } from "../../../core/storage";

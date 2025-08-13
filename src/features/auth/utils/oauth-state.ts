@@ -1,4 +1,4 @@
-import Config from "../../../config.json";
+import Config from "../../../environment/config.json";
 import type { StorageRepository } from "../../../core/storage/StorageRepository";
 
 /**
