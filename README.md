@@ -9,6 +9,8 @@ Healthcare providers need applications that seamlessly integrate with their Elec
 - **Handles secure authentication**: Implements the OAuth 2.0 flow with PKCE (Proof Key for Code Exchange) for enhanced security
 - **Manages token lifecycle**: Includes token refresh functionality to maintain sessions without re-authentication
 
+![Demo Screenshot](/img/DEMO_1.jpeg)
+
 ## Example deployed app
 
 I've provided two example deployments for testing:
@@ -57,7 +59,7 @@ Tested with:
 ### Prerequisites
 
 - Node.js 22+ and npm
-- A SMART on FHIR sandbox account ([SMART Launcher](https://launch.smarthealthit.org) or [Cerner Code Console](https://code-console.cerner.com/))
+- Access to the ([SMART Launcher](https://launch.smarthealthit.org) or an account with either [Cerner Code Console](https://code-console.cerner.com/)) or [Epic UserWeb](https://fhir.epic.com/Home/Index)
 
 ### Installation
 
@@ -104,9 +106,21 @@ This starts the development server at `http://localhost:5173/`.
 
 ### Testing with SMART Launcher
 
+You can test the app on localhost using the SMART App Launcher
+
 1. Go to [SMART App Launcher](https://launch.smarthealthit.org)
 2. Select a patient and practitioner
 3. Enter your app's launch URL: `http://localhost:5173/auth/smart/login`
 4. Click "Launch"
 
 The app will receive the launch parameters and guide you through the OAuth flow.
+
+### Testing with Cerner
+
+You can register your app with Cerner's Code Console:
+![Cerner Code Console](/img/CERNER_CODE_CONSOLE.jpeg)
+
+Here are settings you can use to configure your app. Note that we use the live demo url here, but you can replace it with the localhost URL if you want to test locally.
+
+![Cerner App Settings](/img/CERNER_APP_CONFIG_1.png)
+![Cerner App Product Selection](/img/CERNER_APP_CONFIG_2.png)
