@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:cerner": "npm test -- --run && cp src/config.cerner.json src/config.json && npm run build",
-    "build:epic": "npm test -- --run && cp src/config.epic.json src/config.json && npm run build",
+    "build:cerner": "npm test -- --run && cp src/config.cerner.prod.json src/config.json && npm run build",
+    "build:epic": "npm test -- --run && cp src/config.epic.prod.json src/config.json && npm run build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest"
