@@ -9,6 +9,14 @@ Healthcare providers need applications that seamlessly integrate with their Elec
 - **Handles secure authentication**: Implements the OAuth 2.0 flow with PKCE (Proof Key for Code Exchange) for enhanced security
 - **Manages token lifecycle**: Includes token refresh functionality to maintain sessions without re-authentication
 
+## Example deployed app
+
+I've provided two example deployments for testing:
+[smart-provider-ehr-launch-app-epic.foureighteen.dev](https://smart-provider-ehr-launch-app-epic.foureighteen.dev) and
+[smart-provider-ehr-launch-app-cerner.foureighteen.dev](https://smart-provider-ehr-launch-app-cerner.foureighteen.dev).
+
+Note that clicking on these links will not work directly - they need to be launched from the SMART App Launcher or a compatible EHR environment. This means you'll need configure a Cerner or Epic sandbox account first, and use the above links as the launch URL in the SMART App Launcher.
+
 ## SMART on FHIR Provider EHR Launch Flow
 
 This app implements the [SMART App Launch Framework](https://build.fhir.org/ig/HL7/smart-app-launch/app-launch.html) EHR launch sequence:
