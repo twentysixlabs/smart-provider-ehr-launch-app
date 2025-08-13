@@ -1,4 +1,3 @@
-import React from "react";
 import type { TokenData } from "../../auth/contexts/TokenContext";
 
 interface TokenDisplayProps {
