@@ -1,23 +1,24 @@
 import { useQuery, type UseQueryOptions, type UseQueryResult } from '@tanstack/react-query';
 import { fetchFhirResource } from '@/lib/smart-auth';
-import type { FhirBundle, FhirResource, TokenData } from '@/types';
+import type { Bundle, Resource, Patient, Encounter, Observation, MedicationRequest, Condition, AllergyIntolerance, Immunization, Device } from '@medplum/fhirtypes';
+import type { TokenData } from '@/types';
 import { buildFhirSearchUrl } from '@/lib/fhir-utils';
 
-interface UseFhirQueryOptions<T extends FhirResource> {
+interface UseFhirQueryOptions {
   resourceType: string;
   params?: Record<string, string | number | boolean | undefined>;
   enabled?: boolean;
   staleTime?: number;
 }
 
-export function useFhirQuery<T extends FhirResource>(
+export function useFhirQuery<T extends Resource>(
   fhirBaseUrl: string | null,
   accessToken: string | null,
-  options: UseFhirQueryOptions<T>
-): UseQueryResult<FhirBundle<T>, Error> {
+  options: UseFhirQueryOptions
+): UseQueryResult<Bundle<T>, Error> {
   const { resourceType, params = {}, enabled = true, staleTime } = options;
 
-  return useQuery<FhirBundle<T>, Error>({
+  return useQuery<Bundle<T>, Error>({
     queryKey: ['fhir', resourceType, params],
     queryFn: async () => {
       if (!fhirBaseUrl || !accessToken) {
@@ -25,14 +26,14 @@ export function useFhirQuery<T extends FhirResource>(
       }
 
       const url = buildFhirSearchUrl(fhirBaseUrl, resourceType, params);
-      return fetchFhirResource<FhirBundle<T>>(url, accessToken);
+      return fetchFhirResource<Bundle<T>>(url, accessToken);
     },
     enabled: enabled && Boolean(fhirBaseUrl) && Boolean(accessToken),
     staleTime,
   });
 }
 
-export function useFhirResourceQuery<T extends FhirResource>(
+export function useFhirResourceQuery<T extends Resource>(
   fhirBaseUrl: string | null,
   accessToken: string | null,
   resourceType: string,
@@ -59,7 +60,7 @@ export function usePatientQuery(
   fhirBaseUrl: string | null,
   token: TokenData | null
 ) {
-  return useFhirResourceQuery(
+  return useFhirResourceQuery<Patient>(
     fhirBaseUrl,
     token?.access_token ?? null,
     'Patient',
@@ -71,7 +72,7 @@ export function useEncounterQuery(
   fhirBaseUrl: string | null,
   token: TokenData | null
 ) {
-  return useFhirResourceQuery(
+  return useFhirResourceQuery<Encounter>(
     fhirBaseUrl,
     token?.access_token ?? null,
     'Encounter',
@@ -94,7 +95,7 @@ export function useObservationsQuery(
     params.category = category;
   }
 
-  return useFhirQuery(fhirBaseUrl, token?.access_token ?? null, {
+  return useFhirQuery<Observation>(fhirBaseUrl, token?.access_token ?? null, {
     resourceType: 'Observation',
     params,
     enabled: Boolean(token?.patient),
@@ -105,7 +106,7 @@ export function useMedicationRequestsQuery(
   fhirBaseUrl: string | null,
   token: TokenData | null
 ) {
-  return useFhirQuery(fhirBaseUrl, token?.access_token ?? null, {
+  return useFhirQuery<MedicationRequest>(fhirBaseUrl, token?.access_token ?? null, {
     resourceType: 'MedicationRequest',
     params: {
       patient: token?.patient,
@@ -120,7 +121,7 @@ export function useConditionsQuery(
   fhirBaseUrl: string | null,
   token: TokenData | null
 ) {
-  return useFhirQuery(fhirBaseUrl, token?.access_token ?? null, {
+  return useFhirQuery<Condition>(fhirBaseUrl, token?.access_token ?? null, {
     resourceType: 'Condition',
     params: {
       patient: token?.patient,
@@ -134,7 +135,7 @@ export function useAllergiesQuery(
   fhirBaseUrl: string | null,
   token: TokenData | null
 ) {
-  return useFhirQuery(fhirBaseUrl, token?.access_token ?? null, {
+  return useFhirQuery<AllergyIntolerance>(fhirBaseUrl, token?.access_token ?? null, {
     resourceType: 'AllergyIntolerance',
     params: {
       patient: token?.patient,
@@ -148,7 +149,7 @@ export function useImmunizationsQuery(
   fhirBaseUrl: string | null,
   token: TokenData | null
 ) {
-  return useFhirQuery(fhirBaseUrl, token?.access_token ?? null, {
+  return useFhirQuery<Immunization>(fhirBaseUrl, token?.access_token ?? null, {
     resourceType: 'Immunization',
     params: {
       patient: token?.patient,
@@ -163,7 +164,7 @@ export function useDevicesQuery(
   fhirBaseUrl: string | null,
   token: TokenData | null
 ) {
-  return useFhirQuery(fhirBaseUrl, token?.access_token ?? null, {
+  return useFhirQuery<Device>(fhirBaseUrl, token?.access_token ?? null, {
     resourceType: 'Device',
     params: {
       patient: token?.patient,

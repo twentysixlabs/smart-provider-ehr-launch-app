@@ -4,10 +4,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, User } from 'lucide-react';
-import type { FhirPatient } from '@/types';
+import type { Patient } from '@medplum/fhirtypes';
 import { formatPatientName, getPatientAge, formatGender } from '@/lib/fhir-utils';
 import { formatDate } from '@/lib/utils';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 interface PatientBannerProps {
   patient: FhirPatient | null;

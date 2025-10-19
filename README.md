@@ -1,70 +1,67 @@
-# SMART on FHIR Provider EHR Launch App - Next.js 15
+# SMART on FHIR Provider EHR Launch App
 
-A modern, production-ready SMART on FHIR application built with Next.js 15, React 19, TypeScript, and TailwindCSS 4. This application demonstrates the EHR launch flow for provider-facing clinical applications with support for Epic, Cerner, and Athena EHR systems.
+A modern, production-ready SMART on FHIR application built with Next.js 15, React 19, TypeScript, and TailwindCSS 4. This provider-facing application enables clinicians to launch directly from their EHR and seamlessly access clinical data while integrating with your services.
 
 ## 🚀 Features
 
 - **Next.js 15** with App Router and React Server Components
-- **React 19** with latest features
+- **React 19** with latest features  
 - **TypeScript** with strict type checking (no `any` types)
 - **TailwindCSS 4** for styling
 - **Shadcn UI** for accessible, composable components
-- **Framer Motion** for smooth animations
+- **Motion** (motion/react) for smooth animations
 - **Zustand** for state management
 - **React Query** for data fetching
 - **Zod** for schema validation
 - **React Hook Form** for form handling
+- **@medplum/fhirtypes** for comprehensive FHIR R4 types
 - **Dark/Light mode** support with next-themes
+- **Bun** as package manager for fast installs
+- **Biome** for lightning-fast linting and formatting
 - **Comprehensive test coverage** with Vitest
 - **WCAG accessibility** compliance
 - **Standalone build output** for easy deployment
 
-## 🏥 Healthcare Integration
+## 🏥 Provider-Facing Application
 
-This app implements the [SMART App Launch Framework](https://build.fhir.org/ig/HL7/smart-app-launch/app-launch.html) and supports:
+This app is designed for **clinicians** (doctors, nurses, medical staff) who need to:
 
-- **Epic** - Full SMART on FHIR support
-- **Cerner** - Oracle Health integration
-- **Athena** - athenahealth EHR systems
-- **SMART App Launcher** - Reference implementation
+- **Launch from within their EHR** - Seamless integration with Epic, Cerner, and Athena
+- **Access patient data** - View demographics, vitals, labs, medications, conditions, and more
+- **Integrate with your services** - Connect to your backend APIs while maintaining EHR context
+- **Work securely** - OAuth 2.0 with PKCE, token management, and refresh capabilities
 
 ### SMART on FHIR Flow
 
-1. **EHR Launch**: EHR initiates launch with `iss` and `launch` parameters
-2. **Discovery**: App discovers OAuth endpoints via `.well-known/smart-configuration`
-3. **Authorization**: Redirects to EHR's authorization server with PKCE
-4. **Token Exchange**: Exchanges authorization code for access/refresh tokens
-5. **API Access**: Makes authenticated FHIR API calls
+1. **EHR Launch**: Clinician clicks your app in their EHR
+2. **Authorization**: App requests necessary scopes and authorizes
+3. **Patient Context**: Receives current patient and encounter context
+4. **Data Access**: Makes authenticated FHIR API calls
+5. **Your Services**: Integrate your own services with patient context
 
 ## 📋 Prerequisites
 
-- **Node.js** >= 22.0.0
-- **npm** >= 10.0.0
+- **Bun** >= 1.3.0 (recommended package manager)
+- **Node.js** >= 22.0.0 (fallback)
 - Access to a SMART on FHIR server (SMART Launcher, Epic sandbox, or Cerner sandbox)
 
 ## 🛠️ Installation
 
 ```bash
+# Install bun if you haven't already
+curl -fsSL https://bun.sh/install | bash
+
 # Install dependencies
-npm install
+bun install
 
 # Run development server
-npm run dev
+bun dev
 
 # Build for production
-npm run build
+bun run build
 
 # Start production server
-npm start
-
-# Run tests
-npm test
-
-# Run tests with coverage
-npm run test:coverage
-
-# Run linter
-npm run lint
+bun start
 ```
 
 ## ⚙️ Configuration
@@ -76,7 +73,7 @@ Edit `src/config/config.json`:
 ```json
 {
   "CLIENT_ID": "your-client-id",
-  "BASE_URL": "http://localhost:3000",
+  "BASE_URL": "https://your-app.vercel.app",
   "SMART_SCOPES": [
     "launch",
     "fhirUser",
@@ -109,10 +106,10 @@ For production builds targeting specific EHR systems:
 
 ```bash
 # Build for Epic
-npm run build:epic
+bun run build:epic
 
 # Build for Cerner
-npm run build:cerner
+bun run build:cerner
 ```
 
 ## 🧪 Testing
@@ -126,13 +123,13 @@ This project includes comprehensive test coverage with:
 
 ```bash
 # Run all tests
-npm test
+bun test
 
 # Run tests in watch mode
-npm run test:ui
+bun run test:ui
 
 # Generate coverage report
-npm run test:coverage
+bun run test:coverage
 ```
 
 ## 🌐 Testing with SMART App Launcher
@@ -142,7 +139,54 @@ npm run test:coverage
 3. Enter launch URL: `http://localhost:3000/auth/smart/login`
 4. Click "Launch"
 
-## 🏗️ Project Structure
+## 📦 Deployment
+
+### Vercel (Recommended)
+
+```bash
+# Install Vercel CLI
+bun add -g vercel
+
+# Deploy
+vercel --prod
+```
+
+Or use the Vercel GitHub integration for automatic deployments.
+
+### Cloudflare Pages
+
+```bash
+# Build the application
+bun run build
+
+# Deploy to Cloudflare Pages
+# Use .next/standalone as the output directory
+```
+
+Configuration in your Cloudflare Pages project:
+- **Build command**: `bun run build`
+- **Output directory**: `.next/standalone`
+- **Node.js version**: 22
+
+## 🎨 Development
+
+### Code Quality
+
+```bash
+# Run linter
+bun run lint
+
+# Fix linting issues
+bun run lint:fix
+
+# Format code
+bun run format
+
+# Type check
+bun run type-check
+```
+
+### Project Structure
 
 ```
 src/
@@ -166,7 +210,7 @@ src/
 │   └── ui-store.ts      # UI state management
 ├── test/                # Test setup and utilities
 └── types/               # TypeScript type definitions
-    ├── fhir.ts         # FHIR resource types
+    ├── fhir.ts         # Re-exports from @medplum/fhirtypes
     ├── smart.ts        # SMART auth types
     └── index.ts        # Exported types
 ```
@@ -178,7 +222,7 @@ src/
 - **No secrets in client code** (public client pattern)
 - **Token expiry tracking** and automatic refresh
 - **XSS protection** via strict Content Security Policy
-- **HTTPS-only** cookies in production
+- **HTTPS-only** in production
 
 ## ♿ Accessibility
 
@@ -191,47 +235,59 @@ All components follow WCAG 2.1 Level AA guidelines:
 - Color contrast compliance
 - ARIA labels and roles
 
-## 🎨 Styling
+## 🏗️ Integrating Your Services
 
-- **TailwindCSS 4** with CSS layers
-- **Shadcn UI** component system
-- **Dark/Light mode** with system preference detection
-- **Responsive design** mobile-first approach
-- **No custom CSS files** - all styling via Tailwind utilities
+This app is designed to be a starting point for your provider-facing EHR integration. Here's how to add your services:
 
-## 📦 Build & Deployment
+### 1. Add Your API Client
 
-### Standalone Output
-
-This project is configured for standalone output, making it easy to deploy to any platform:
-
-```bash
-npm run build
+```typescript
+// src/lib/your-service-client.ts
+export async function callYourService(patientId: string, token: string) {
+  const response = await fetch('https://your-api.com/endpoint', {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'X-Patient-ID': patientId,
+    },
+  });
+  return response.json();
+}
 ```
 
-The build output will be in `.next/standalone/` and includes:
+### 2. Create Custom Hooks
 
-- Self-contained Node.js server
-- All required dependencies
-- Static assets
+```typescript
+// src/hooks/use-your-service.ts
+import { useQuery } from '@tanstack/react-query';
+import { callYourService } from '@/lib/your-service-client';
 
-### Deployment Options
+export function useYourService(patientId: string, token: string) {
+  return useQuery({
+    queryKey: ['your-service', patientId],
+    queryFn: () => callYourService(patientId, token),
+    enabled: Boolean(patientId) && Boolean(token),
+  });
+}
+```
 
-- **Vercel** - Zero-config deployment
-- **Docker** - Use the standalone output
-- **Traditional hosting** - Run the standalone server
-- **Cloudflare Workers** - With appropriate adapters
+### 3. Use in Components
 
-### Docker Deployment
+```typescript
+// src/components/your-feature/your-component.tsx
+'use client';
 
-```dockerfile
-FROM node:22-alpine AS base
-WORKDIR /app
-COPY .next/standalone ./
-COPY .next/static ./.next/static
-COPY public ./public
-EXPOSE 3000
-CMD ["node", "server.js"]
+import { useYourService } from '@/hooks/use-your-service';
+import { useTokenStore } from '@/stores/token-store';
+
+export function YourComponent() {
+  const token = useTokenStore((state) => state.token);
+  const { data, isLoading } = useYourService(
+    token?.patient ?? '',
+    token?.access_token ?? ''
+  );
+  
+  // Render your UI
+}
 ```
 
 ## 🐛 Troubleshooting
@@ -255,21 +311,14 @@ CMD ["node", "server.js"]
 
 ## 📚 Documentation
 
-- [HL7 SMART App Launch](https://build.fhir.org/ig/HL7/smart-app-launch/)
+- [HL7 SMART App Launch](https://build.fhir.org/ig/HL7/smart-app-launch/app-launch.html) - Official specification
 - [FHIR R4 Specification](https://hl7.org/fhir/R4/)
+- [Medplum FHIR Types](https://github.com/medplum/medplum) - Type definitions used
 - [Epic SMART on FHIR](https://fhir.epic.com/)
 - [Cerner SMART on FHIR](https://docs.oracle.com/en/industries/health/millennium-platform-apis/)
 - [Next.js Documentation](https://nextjs.org/docs)
-
-## 🤝 Contributing
-
-Contributions are welcome! Please ensure:
-
-1. All tests pass (`npm test`)
-2. Code is properly typed (no `any` types)
-3. Follows existing code style
-4. Includes appropriate tests
-5. Updates documentation as needed
+- [Bun Documentation](https://bun.sh/docs)
+- [Biome Documentation](https://biomejs.dev/)
 
 ## 📄 License
 
@@ -279,17 +328,11 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - HL7 SMART Health IT team for the SMART App Launch Framework
 - Epic, Cerner, and Athena for their FHIR implementations
+- Medplum for comprehensive FHIR type definitions
 - Shadcn for the excellent UI component library
 - The Next.js and React teams for amazing frameworks
-
-## 📞 Support
-
-For issues and questions:
-
-- Check the [troubleshooting section](#-troubleshooting)
-- Review [SMART on FHIR documentation](https://build.fhir.org/ig/HL7/smart-app-launch/)
-- Open an issue on GitHub
+- Bun and Biome teams for fast developer tools
 
 ---
 
-Built with ❤️ for healthcare interoperability
+**Built for clinicians, by developers who care about healthcare interoperability** ❤️

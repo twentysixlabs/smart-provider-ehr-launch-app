@@ -1,15 +1,15 @@
 import type {
-  FhirPatient,
-  FhirHumanName,
-  FhirObservation,
-  FhirObservationComponent,
-  FhirCodeableConcept,
-} from '@/types';
+  Patient,
+  HumanName,
+  Observation,
+  CodeableConcept,
+  ObservationComponent,
+} from '@medplum/fhirtypes';
 
 /**
  * Format a FHIR patient name
  */
-export function formatPatientName(patient: FhirPatient | null | undefined): string {
+export function formatPatientName(patient: Patient | null | undefined): string {
   if (!patient?.name || patient.name.length === 0) {
     return 'Unknown Patient';
   }
@@ -21,7 +21,7 @@ export function formatPatientName(patient: FhirPatient | null | undefined): stri
 /**
  * Format a FHIR HumanName
  */
-export function formatHumanName(name: FhirHumanName | undefined): string {
+export function formatHumanName(name: HumanName | undefined): string {
   if (!name) return 'Unknown';
 
   if (name.text) {
@@ -52,7 +52,7 @@ export function formatHumanName(name: FhirHumanName | undefined): string {
 /**
  * Format a FHIR CodeableConcept
  */
-export function formatCodeableConcept(concept: FhirCodeableConcept | undefined): string {
+export function formatCodeableConcept(concept: CodeableConcept | undefined): string {
   if (!concept) return 'Unknown';
 
   if (concept.text) {
@@ -70,7 +70,7 @@ export function formatCodeableConcept(concept: FhirCodeableConcept | undefined):
 /**
  * Get patient age from birth date
  */
-export function getPatientAge(patient: FhirPatient | null | undefined): string {
+export function getPatientAge(patient: Patient | null | undefined): string {
   if (!patient?.birthDate) {
     return 'Unknown';
   }
@@ -118,7 +118,7 @@ export interface BloodPressureComponents {
 }
 
 export function extractBloodPressureComponents(
-  observation: FhirObservation | undefined
+  observation: Observation | undefined
 ): BloodPressureComponents | null {
   if (!observation?.component || observation.component.length === 0) {
     return null;
@@ -137,8 +137,8 @@ export function extractBloodPressureComponents(
     return null;
   }
 
-  let systolic: FhirObservationComponent | undefined;
-  let diastolic: FhirObservationComponent | undefined;
+  let systolic: ObservationComponent | undefined;
+  let diastolic: ObservationComponent | undefined;
 
   for (const component of observation.component) {
     const coding = component.code?.coding?.[0];
@@ -184,11 +184,11 @@ export function buildFhirSearchUrl(
 ): string {
   const url = new URL(`${baseUrl}/${resourceType}`);
 
-  Object.entries(params).forEach(([key, value]) => {
+  for (const [key, value] of Object.entries(params)) {
     if (value !== undefined && value !== null && value !== '') {
       url.searchParams.append(key, String(value));
     }
-  });
+  }
 
   return url.toString();
 }
@@ -219,7 +219,7 @@ export function extractResourceId(reference: string | undefined): string | null 
 /**
  * Format observation value for display
  */
-export function formatObservationValue(observation: FhirObservation | undefined): string {
+export function formatObservationValue(observation: Observation | undefined): string {
   if (!observation) return 'N/A';
 
   if (observation.valueQuantity) {

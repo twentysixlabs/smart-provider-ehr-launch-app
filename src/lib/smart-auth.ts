@@ -1,3 +1,4 @@
+import type { CapabilityStatement } from '@medplum/fhirtypes';
 import type {
   SmartConfiguration,
   OAuthState,

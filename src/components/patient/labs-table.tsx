@@ -3,12 +3,12 @@
 import { Spinner } from '@/components/ui/spinner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-import type { FhirBundle, FhirObservation } from '@/types';
+import type { Bundle, Observation } from '@medplum/fhirtypes';
 import { formatObservationValue, formatCodeableConcept } from '@/lib/fhir-utils';
 import { formatDateShort } from '@/lib/utils';
 
 interface LabsTableProps {
-  observations: FhirBundle<FhirObservation> | null;
+  observations: Bundle<Observation> | null;
   isLoading: boolean;
   error: Error | null;
 }

@@ -146,7 +146,7 @@ function getResourcePreviewContent(resource: FhirResource, resourceType?: string
   }
 
   if (resourceType === 'medications' && resource.resourceType === 'MedicationRequest') {
-    const med = resource as FhirResource & {
+    const med = resource as Resource & {
       medicationCodeableConcept?: { text?: string };
       medicationReference?: { display?: string };
     };
@@ -191,7 +191,7 @@ function getResourcePreviewContent(resource: FhirResource, resourceType?: string
   }
 
   if (resourceType === 'devices' && resource.resourceType === 'Device') {
-    const device = resource as FhirResource & {
+    const device = resource as Resource & {
       deviceName?: Array<{ name?: string }>;
       type?: { text?: string };
     };
@@ -205,7 +205,7 @@ function getResourcePreviewContent(resource: FhirResource, resourceType?: string
   return <span className="text-muted-foreground">No preview available</span>;
 }
 
-function EncounterPreview({ encounter }: { encounter: FhirEncounter }) {
+function EncounterPreview({ encounter }: { encounter: Encounter }) {
   const classDisplay = encounter.class?.display || 'Unknown type';
   
   return (

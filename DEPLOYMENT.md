@@ -1,15 +1,15 @@
 # Deployment Guide
 
-This guide covers various deployment options for the SMART on FHIR Provider EHR Launch App.
+This guide covers deployment options for the SMART on FHIR Provider EHR Launch App on Vercel and Cloudflare Pages.
 
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
 - [Vercel Deployment](#vercel-deployment)
-- [Docker Deployment](#docker-deployment)
-- [Traditional Server Deployment](#traditional-server-deployment)
+- [Cloudflare Pages Deployment](#cloudflare-pages-deployment)
 - [Environment Configuration](#environment-configuration)
 - [EHR Registration](#ehr-registration)
+- [Monitoring and Logging](#monitoring-and-logging)
 
 ## Prerequisites
 
@@ -19,6 +19,7 @@ Before deploying, ensure you have:
 2. Your CLIENT_ID from the EHR registration
 3. Configured redirect URIs in your EHR app registration
 4. Appropriate scopes granted for your application
+5. A Vercel or Cloudflare account
 
 ## Vercel Deployment
 
@@ -28,107 +29,117 @@ Before deploying, ensure you have:
 
 ### Manual Deployment
 
-1. Install Vercel CLI:
+1. **Install Vercel CLI**:
 ```bash
-npm install -g vercel
+bun add -g vercel
 ```
 
-2. Deploy to Vercel:
+2. **Build the application**:
+```bash
+bun run build
+```
+
+3. **Deploy to Vercel**:
 ```bash
 vercel --prod
 ```
 
-3. Configure environment:
-   - Update `src/config/config.json` with your production CLIENT_ID and BASE_URL
-   - Ensure BASE_URL matches your Vercel domain
+### GitHub Integration
 
-## Docker Deployment
+For automatic deployments:
 
-### Build Docker Image
+1. Go to [Vercel](https://vercel.com)
+2. Click "Add New Project"
+3. Import your GitHub repository
+4. Configure build settings:
+   - **Build Command**: `bun run build`
+   - **Output Directory**: `.next`
+   - **Install Command**: `bun install`
+5. Click "Deploy"
 
-```bash
-docker build -t smart-fhir-app .
-```
+### Vercel Configuration
 
-### Run Container
+Create `vercel.json` in your project root:
 
-```bash
-docker run -p 3000:3000 smart-fhir-app
-```
-
-### Docker Compose
-
-Create a `docker-compose.yml`:
-
-```yaml
-version: '3.8'
-services:
-  app:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-    restart: unless-stopped
-```
-
-Run with:
-```bash
-docker-compose up -d
-```
-
-## Traditional Server Deployment
-
-### Build for Production
-
-```bash
-npm run build
-```
-
-### Run Standalone Server
-
-```bash
-cd .next/standalone
-node server.js
-```
-
-### Using PM2
-
-```bash
-npm install -g pm2
-pm2 start .next/standalone/server.js --name smart-fhir-app
-pm2 save
-pm2 startup
-```
-
-### Nginx Configuration
-
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
+```json
+{
+  "buildCommand": "bun run build",
+  "devCommand": "bun dev",
+  "installCommand": "bun install",
+  "framework": "nextjs",
+  "outputDirectory": ".next"
 }
+```
+
+### Environment Variables
+
+In Vercel dashboard, add:
+- Update `src/config/config.json` with your production values before deploying
+- Or use Vercel's environment variables feature
+
+## Cloudflare Pages Deployment
+
+### Using Cloudflare Pages
+
+1. **Build the application**:
+```bash
+bun run build
+```
+
+2. **Create a Cloudflare Pages project**:
+   - Go to [Cloudflare Dashboard](https://dash.cloudflare.com)
+   - Navigate to Pages
+   - Click "Create a project"
+   - Connect your Git repository
+
+3. **Configure build settings**:
+   - **Build command**: `bun run build`
+   - **Build output directory**: `.next/standalone`
+   - **Root directory**: `/`
+   - **Environment variables**: Add `NODE_VERSION` = `22`
+
+### Cloudflare Configuration
+
+Create `wrangler.toml` for Cloudflare Workers (optional):
+
+```toml
+name = "smart-fhir-app"
+compatibility_date = "2024-01-01"
+
+[site]
+bucket = "./.next/standalone"
+
+[build]
+command = "bun run build"
+
+[[routes]]
+pattern = "/*"
+custom_domain = true
+```
+
+### Using Cloudflare CLI
+
+```bash
+# Install Wrangler
+bun add -g wrangler
+
+# Login to Cloudflare
+wrangler login
+
+# Deploy
+wrangler pages publish .next/standalone
 ```
 
 ## Environment Configuration
 
 ### Production Configuration
 
-Update `src/config/config.json` for production:
+Update `src/config/config.json` for your environment:
 
 ```json
 {
   "CLIENT_ID": "your-production-client-id",
-  "BASE_URL": "https://your-domain.com",
+  "BASE_URL": "https://your-app.vercel.app",
   "SMART_SCOPES": [
     "launch",
     "fhirUser",
@@ -155,7 +166,7 @@ Update `src/config/config.json` for production:
 #### Epic Deployment
 
 ```bash
-npm run build:epic
+bun run build:epic
 ```
 
 This copies `src/config/config.epic.prod.json` to `src/config/config.json` before building.
@@ -163,7 +174,7 @@ This copies `src/config/config.epic.prod.json` to `src/config/config.json` befor
 #### Cerner Deployment
 
 ```bash
-npm run build:cerner
+bun run build:cerner
 ```
 
 This copies `src/config/config.cerner.prod.json` to `src/config/config.json` before building.
@@ -177,8 +188,9 @@ This copies `src/config/config.cerner.prod.json` to `src/config/config.json` bef
 3. Click "Create" and select "Provider Facing App"
 4. Fill in app details:
    - **App Name**: Your app name
-   - **Redirect URI**: `https://your-domain.com/auth/smart/callback`
-   - **Launch URI**: `https://your-domain.com/auth/smart/login`
+   - **Redirect URI**: `https://your-app.vercel.app/auth/smart/callback`
+   - **Launch URI**: `https://your-app.vercel.app/auth/smart/login`
+   - **FHIR Version**: R4
 5. Select required scopes
 6. Submit for review
 7. Note your CLIENT_ID once approved
@@ -189,9 +201,10 @@ This copies `src/config/config.cerner.prod.json` to `src/config/config.json` bef
 2. Click "New App"
 3. Configure app:
    - **App Type**: Provider
-   - **Redirect URI**: `https://your-domain.com/auth/smart/callback`
-   - **Launch URI**: `https://your-domain.com/auth/smart/login`
+   - **Redirect URI**: `https://your-app.vercel.app/auth/smart/callback`
+   - **Launch URI**: `https://your-app.vercel.app/auth/smart/login`
    - **SMART Launch URL**: Yes
+   - **FHIR Version**: R4
 4. Select FHIR resources and scopes
 5. Save and note your CLIENT_ID
 
@@ -200,52 +213,152 @@ This copies `src/config/config.cerner.prod.json` to `src/config/config.json` bef
 1. Contact your Athena representative
 2. Provide:
    - Application name and description
-   - Redirect URI: `https://your-domain.com/auth/smart/callback`
-   - Launch URI: `https://your-domain.com/auth/smart/login`
+   - Redirect URI: `https://your-app.vercel.app/auth/smart/callback`
+   - Launch URI: `https://your-app.vercel.app/auth/smart/login`
    - Required FHIR scopes
 3. Complete Athena's onboarding process
 4. Receive CLIENT_ID and configuration details
 
 ## SSL/TLS Configuration
 
-### Let's Encrypt with Certbot
+Both Vercel and Cloudflare automatically provide SSL/TLS certificates:
 
-```bash
-sudo certbot --nginx -d your-domain.com
-```
+### Vercel
+- Automatic SSL via Let's Encrypt
+- Automatically renews certificates
+- No configuration needed
 
 ### Cloudflare
+- Universal SSL included
+- Enable "Always Use HTTPS" in SSL/TLS settings
+- Set encryption mode to "Full (strict)"
 
-1. Add your domain to Cloudflare
+## Custom Domains
+
+### Vercel Custom Domain
+
+1. Go to your project settings
+2. Navigate to "Domains"
+3. Add your custom domain
+4. Update DNS records as instructed
+5. Vercel handles SSL automatically
+
+### Cloudflare Custom Domain
+
+1. Add domain to Cloudflare
 2. Update nameservers
-3. Enable "Always Use HTTPS" in SSL/TLS settings
-4. Set SSL/TLS encryption mode to "Full (strict)"
+3. In Pages project, add custom domain
+4. SSL is automatically configured
 
 ## Monitoring and Logging
 
-### Application Logs
+### Vercel Analytics
 
-With PM2:
+Enable Vercel Analytics for performance monitoring:
+
 ```bash
-pm2 logs smart-fhir-app
+bun add @vercel/analytics
 ```
 
-With Docker:
-```bash
-docker logs -f smart-fhir-app
-```
-
-### Health Checks
-
-Add a health check endpoint by creating `src/app/api/health/route.ts`:
+Add to your layout:
 
 ```typescript
+import { Analytics } from '@vercel/analytics/react';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        {children}
+        <Analytics />
+      </body>
+    </html>
+  );
+}
+```
+
+### Cloudflare Web Analytics
+
+1. Enable Web Analytics in Cloudflare dashboard
+2. Add the analytics script to your site
+3. View metrics in Cloudflare dashboard
+
+### Application Logs
+
+Both platforms provide log access:
+
+**Vercel**:
+- View logs in project dashboard
+- Use `vercel logs` CLI command
+
+**Cloudflare**:
+- View logs in Pages dashboard
+- Use Logpush for advanced logging
+
+## Performance Optimization
+
+### Vercel Edge Functions
+
+Convert certain API routes to Edge Functions for better performance:
+
+```typescript
+// src/app/api/example/route.ts
+export const runtime = 'edge';
+
+export async function GET() {
+  // Your edge function code
+}
+```
+
+### Cloudflare Workers
+
+Use Cloudflare Workers for serverless functions:
+
+```typescript
+// worker.js
+export default {
+  async fetch(request, env) {
+    // Your worker code
+  }
+}
+```
+
+## Rollback Strategy
+
+### Vercel Rollback
+
+1. Go to your project in Vercel
+2. Navigate to "Deployments"
+3. Find the deployment to rollback to
+4. Click "..." and select "Promote to Production"
+
+### Cloudflare Rollback
+
+1. Go to your Pages project
+2. Navigate to "Deployments"
+3. Select the deployment to rollback to
+4. Click "Rollback to this deployment"
+
+## Health Checks
+
+Add a health check endpoint:
+
+```typescript
+// src/app/api/health/route.ts
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-  return NextResponse.json({ status: 'ok' });
+  return NextResponse.json({ 
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+  });
 }
 ```
+
+Monitor this endpoint from:
+- Vercel: Built-in monitoring
+- Cloudflare: Workers health checks
+- External: UptimeRobot, Pingdom, etc.
 
 ## Troubleshooting
 
@@ -254,130 +367,56 @@ export async function GET() {
 1. **Redirect URI Mismatch**
    - Ensure redirect URI in config matches EHR registration exactly
    - Check for trailing slashes
+   - Verify HTTPS is used
 
-2. **CORS Errors**
-   - Verify your domain is whitelisted with the EHR
-   - Check Next.js headers configuration
+2. **Build Failures**
+   - Check build logs in platform dashboard
+   - Verify all dependencies are in package.json
+   - Ensure Node version is correct (22+)
 
 3. **Token Issues**
    - Verify CLIENT_ID is correct
    - Check that scopes are properly requested
    - Ensure BASE_URL matches your deployment URL
 
-### Debug Mode
-
-Enable detailed logging by setting in your environment:
-
-```bash
-export NODE_ENV=development
-export NEXT_PUBLIC_DEBUG=true
-```
+4. **CORS Errors**
+   - Verify your domain is whitelisted with the EHR
+   - Check Next.js headers configuration
+   - Ensure proper CORS headers on API routes
 
 ## Security Checklist
 
-- [ ] HTTPS enabled
+- [ ] HTTPS enabled (automatic on both platforms)
 - [ ] Security headers configured
 - [ ] Client ID is correct for environment
 - [ ] Redirect URIs match exactly
 - [ ] No sensitive data in client code
 - [ ] CORS properly configured
-- [ ] Rate limiting implemented
 - [ ] Error logging configured
+- [ ] Health check endpoint added
 
-## Performance Optimization
+## Cost Optimization
 
-### CDN Configuration
+### Vercel
+- Use hobby plan for development
+- Pro plan for production
+- Monitor bandwidth usage
+- Use edge functions where appropriate
 
-Use a CDN for static assets:
-
-1. Configure in `next.config.ts`:
-```typescript
-const nextConfig = {
-  assetPrefix: 'https://cdn.your-domain.com',
-}
-```
-
-2. Upload `.next/static` to your CDN
-
-### Database Caching (if needed)
-
-Consider adding Redis for session caching:
-
-```bash
-npm install ioredis
-```
-
-## Rollback Strategy
-
-### Keep Previous Build
-
-```bash
-# Before deploying
-mv .next .next.backup
-
-# To rollback
-rm -rf .next
-mv .next.backup .next
-pm2 restart smart-fhir-app
-```
-
-### Git Tags
-
-```bash
-# Tag releases
-git tag -a v1.0.0 -m "Release 1.0.0"
-git push origin v1.0.0
-
-# Rollback
-git checkout v1.0.0
-npm run build
-pm2 restart smart-fhir-app
-```
-
-## Scaling
-
-### Horizontal Scaling
-
-Use a load balancer with multiple instances:
-
-```yaml
-# docker-compose.yml
-version: '3.8'
-services:
-  app:
-    build: .
-    deploy:
-      replicas: 3
-    ports:
-      - "3000-3002:3000"
-
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    depends_on:
-      - app
-```
-
-### Auto-scaling on Cloud Platforms
-
-#### AWS ECS
-- Use Fargate with auto-scaling policies
-- Configure target tracking based on CPU/memory
-
-#### Google Cloud Run
-- Automatically scales based on traffic
-- Set min/max instances
-
-#### Azure Container Apps
-- Configure scaling rules
-- Set replica counts
+### Cloudflare
+- Free tier available for small apps
+- Pay-as-you-go for larger apps
+- Unlimited bandwidth included
+- Workers requests metered
 
 ## Support
 
 For deployment issues:
-- Check [GitHub Issues](https://github.com/your-repo/issues)
-- Review EHR-specific documentation
-- Contact your EHR representative for integration issues
+- **Vercel**: [Vercel Documentation](https://vercel.com/docs)
+- **Cloudflare**: [Cloudflare Pages Docs](https://developers.cloudflare.com/pages/)
+- **SMART on FHIR**: [HL7 Specification](https://build.fhir.org/ig/HL7/smart-app-launch/)
+- **EHR-specific**: Contact your EHR representative
+
+---
+
+**Both Vercel and Cloudflare provide excellent platforms for deploying Next.js applications with SMART on FHIR integration!**

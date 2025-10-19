@@ -89,10 +89,8 @@ pids
 .vitest
 coverage/
 
-# Old Vite files (cleanup)
-vite.config.ts
-index.html
-eslint.config.js
+# Bun
+bun.lockb
 
 # Config that should be customized per deployment
 src/config/config.json

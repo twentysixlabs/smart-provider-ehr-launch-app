@@ -9,12 +9,12 @@ import {
   buildFhirSearchUrl,
   extractResourceId,
 } from '../fhir-utils';
-import type { FhirPatient, FhirHumanName, FhirCodeableConcept } from '@/types';
+import type { Patient, HumanName, CodeableConcept } from '@medplum/fhirtypes';
 
 describe('fhir-utils', () => {
   describe('formatPatientName', () => {
     it('should format patient name correctly', () => {
-      const patient: FhirPatient = {
+      const patient: Patient = {
         resourceType: 'Patient',
         name: [
           {
@@ -27,7 +27,7 @@ describe('fhir-utils', () => {
     });
 
     it('should handle patient with no name', () => {
-      const patient: FhirPatient = {
+      const patient: Patient = {
         resourceType: 'Patient',
       };
       expect(formatPatientName(patient)).toBe('Unknown Patient');
@@ -40,14 +40,14 @@ describe('fhir-utils', () => {
 
   describe('formatHumanName', () => {
     it('should use text if available', () => {
-      const name: FhirHumanName = {
+      const name: HumanName = {
         text: 'Dr. John Doe Jr.',
       };
       expect(formatHumanName(name)).toBe('Dr. John Doe Jr.');
     });
 
     it('should construct name from parts', () => {
-      const name: FhirHumanName = {
+      const name: HumanName = {
         prefix: ['Dr.'],
         given: ['John', 'Michael'],
         family: 'Doe',
@@ -63,14 +63,14 @@ describe('fhir-utils', () => {
 
   describe('formatCodeableConcept', () => {
     it('should use text if available', () => {
-      const concept: FhirCodeableConcept = {
+      const concept: CodeableConcept = {
         text: 'Blood Pressure',
       };
       expect(formatCodeableConcept(concept)).toBe('Blood Pressure');
     });
 
     it('should use coding display if text not available', () => {
-      const concept: FhirCodeableConcept = {
+      const concept: CodeableConcept = {
         coding: [
           {
             system: 'http://loinc.org',
@@ -91,7 +91,7 @@ describe('fhir-utils', () => {
     it('should calculate age correctly', () => {
       const birthDate = new Date();
       birthDate.setFullYear(birthDate.getFullYear() - 30);
-      const patient: FhirPatient = {
+      const patient: Patient = {
         resourceType: 'Patient',
         birthDate: birthDate.toISOString().split('T')[0],
       };
@@ -99,7 +99,7 @@ describe('fhir-utils', () => {
     });
 
     it('should handle patient with no birth date', () => {
-      const patient: FhirPatient = {
+      const patient: Patient = {
         resourceType: 'Patient',
       };
       expect(getPatientAge(patient)).toBe('Unknown');
