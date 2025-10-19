@@ -1,0 +1,15 @@
+node_modules
+npm-debug.log
+.next
+.git
+.gitignore
+.dockerignore
+README.md
+Dockerfile
+.DS_Store
+*.swp
+.env*.local
+coverage
+.vitest
+dist
+build

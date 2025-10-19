@@ -1,0 +1,36 @@
+{
+  "CLIENT_ID": "YOUR_CERNER_CLIENT_ID",
+  "BASE_URL": "https://your-production-url.com",
+  "SMART_SCOPES": [
+    "launch",
+    "fhirUser",
+    "profile",
+    "openid",
+    "online_access",
+    "user/Observation.read",
+    "user/Patient.read",
+    "user/Condition.read",
+    "user/MedicationRequest.read",
+    "user/AllergyIntolerance.read",
+    "user/Encounter.read",
+    "user/Immunization.read",
+    "user/Device.read",
+    "patient/Observation.read",
+    "patient/Patient.read",
+    "patient/Condition.read",
+    "patient/MedicationRequest.read",
+    "patient/AllergyIntolerance.read",
+    "patient/Encounter.read",
+    "patient/Immunization.read",
+    "patient/Device.read"
+  ],
+  "STORAGE_KEYS": {
+    "OAUTH_STATE": "oauth2-state",
+    "CODE_VERIFIER": "code-verifier",
+    "TOKEN_DATA": "token-data",
+    "AUTHORIZATION_URL": "authorization-url",
+    "TOKEN_URL": "token-url",
+    "FHIR_BASE_URL": "fhir-base-url"
+  },
+  "STORAGE_TYPE": "local"
+}
