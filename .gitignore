@@ -94,3 +94,9 @@ bun.lockb
 
 # Config that should be customized per deployment
 src/config/config.json
+
+# Better Auth database
+data/
+*.db
+*.db-shm
+*.db-wal

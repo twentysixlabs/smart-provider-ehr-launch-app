@@ -7,12 +7,14 @@ import { storage } from '@/lib/storage';
 import { usePatientQuery } from '@/hooks/use-fhir-query';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
+import { LogOut, User as UserIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
 import Config from '@/config/config.json';
 
 export default function PatientPage() {
   const router = useRouter();
+  const { user, signOut: authSignOut } = useAuth();
   const token = useTokenStore((state) => state.token);
   const clearToken = useTokenStore((state) => state.clearToken);
   const fhirBaseUrl = storage.getItem(Config.STORAGE_KEYS.FHIR_BASE_URL);
@@ -22,10 +24,13 @@ export default function PatientPage() {
     token
   );
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Clear SMART on FHIR tokens
     clearToken();
     storage.clear();
-    router.push('/');
+    
+    // Sign out from backend auth
+    await authSignOut();
   };
 
   return (
@@ -37,6 +42,12 @@ export default function PatientPage() {
             <h1 className="text-lg font-semibold">SMART on FHIR Provider Launch</h1>
           </div>
           <div className="flex items-center gap-2">
+            {user && (
+              <div className="flex items-center gap-2 mr-2 px-3 py-1 rounded-md bg-muted">
+                <UserIcon className="h-4 w-4" />
+                <span className="text-sm font-medium">{user.name}</span>
+              </div>
+            )}
             <ThemeToggle />
             <Button
               variant="ghost"

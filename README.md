@@ -10,6 +10,7 @@ A modern, production-ready SMART on FHIR application built with Next.js 15, Reac
 - **TailwindCSS 4** for styling
 - **Shadcn UI** for accessible, composable components
 - **Motion** (motion/react) for smooth animations
+- **Better Auth** for backend authentication
 - **Zustand** for state management
 - **React Query** for data fetching
 - **Zod** for schema validation
@@ -26,18 +27,29 @@ A modern, production-ready SMART on FHIR application built with Next.js 15, Reac
 
 This app is designed for **clinicians** (doctors, nurses, medical staff) who need to:
 
+- **Authenticate to your backend** - Secure login with Better Auth for your services
 - **Launch from within their EHR** - Seamless integration with Epic, Cerner, and Athena
 - **Access patient data** - View demographics, vitals, labs, medications, conditions, and more
 - **Integrate with your services** - Connect to your backend APIs while maintaining EHR context
-- **Work securely** - OAuth 2.0 with PKCE, token management, and refresh capabilities
+- **Work securely** - Dual authentication: Better Auth for your app + OAuth 2.0 PKCE for EHR
 
-### SMART on FHIR Flow
+### Dual Authentication Flow
 
-1. **EHR Launch**: Clinician clicks your app in their EHR
-2. **Authorization**: App requests necessary scopes and authorizes
-3. **Patient Context**: Receives current patient and encounter context
-4. **Data Access**: Makes authenticated FHIR API calls
-5. **Your Services**: Integrate your own services with patient context
+**1. Your Backend (Better Auth)**
+```
+→ Clinician signs up/in to your app
+→ Session created and maintained
+→ Access to your dashboard and features
+```
+
+**2. EHR Access (SMART on FHIR)**
+```
+→ Clinician clicks your app in EHR
+→ OAuth flow with PKCE
+→ Access to patient FHIR data
+```
+
+Both authentications work together seamlessly!
 
 ## 📋 Prerequisites
 
