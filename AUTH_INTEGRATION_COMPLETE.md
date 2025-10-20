@@ -343,17 +343,18 @@ To add Google/Microsoft/etc:
 ```typescript
 // src/lib/auth.ts
 import { google, microsoft } from 'arctic';
+import { env } from '@/env';
 
 export const auth = betterAuth({
   // ...
   socialProviders: {
     google: {
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientId: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
     },
     microsoft: {
-      clientId: process.env.MICROSOFT_CLIENT_ID,
-      clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
+      clientId: env.MICROSOFT_CLIENT_ID,
+      clientSecret: env.MICROSOFT_CLIENT_SECRET,
     },
   },
 });

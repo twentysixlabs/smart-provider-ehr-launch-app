@@ -502,9 +502,10 @@ SQLite can have locking issues with concurrent access. Solutions:
 ```typescript
 // src/lib/auth.ts
 import { Pool } from 'pg';
+import { env } from '@/env';
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: env.DATABASE_URL,
 });
 
 export const auth = betterAuth({
@@ -522,10 +523,10 @@ export const auth = betterAuth({
 import mysql from 'mysql2/promise';
 
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  host: env.DB_HOST,
+  user: env.DB_USER,
+  password: env.DB_PASSWORD,
+  database: env.DB_NAME,
 });
 
 export const auth = betterAuth({

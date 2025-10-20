@@ -8,14 +8,16 @@
 import { betterAuth } from 'better-auth';
 import { nextCookies } from 'better-auth/next-js';
 import Database from 'better-sqlite3';
+import { env } from '@/env';
 
 // Get database path from environment or use default
-const dbPath = process.env.DATABASE_PATH || './data/auth.db';
+const dbPath = env.DATABASE_PATH || './data/auth.db';
 
 // Create database instance
 const db = new Database(dbPath);
 
 export const auth = betterAuth({
+  secret: env.BETTER_AUTH_SECRET,
   database: {
     // Using SQLite with better-sqlite3
     db,
@@ -71,7 +73,7 @@ export const auth = betterAuth({
     },
   },
   // Trust proxy for deployment behind reverse proxy
-  trustedOrigins: process.env.TRUSTED_ORIGINS?.split(',') || [],
+  trustedOrigins: env.TRUSTED_ORIGINS?.split(',') || [],
 });
 
 // Export the auth type for client usage

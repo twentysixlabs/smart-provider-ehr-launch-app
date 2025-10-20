@@ -5,16 +5,17 @@
  */
 
 import Database from 'better-sqlite3';
-import { hash } from 'better-auth/utils';
+import { createHash } from "@better-auth/utils/hash"
+import { env } from '@/env';
 
 const db = new Database('./data/auth.db');
 
 async function createAdmin() {
-  const email = process.env.ADMIN_EMAIL || 'admin@example.com';
-  const password = process.env.ADMIN_PASSWORD || 'admin123';
-  const name = process.env.ADMIN_NAME || 'Admin User';
+  const email = env.ADMIN_EMAIL || 'admin@example.com';
+  const password = env.ADMIN_PASSWORD || 'admin123';
+  const name = env.ADMIN_NAME || 'Admin User';
 
-  const hashedPassword = await hash(password);
+  const hashedPassword = await createHash("SHA-256").digest(password);
   const id = crypto.randomUUID();
   const now = Date.now();
 
