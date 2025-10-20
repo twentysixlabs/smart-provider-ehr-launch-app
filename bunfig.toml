@@ -1,0 +1,15 @@
+[install]
+# Configure package installation
+production = false
+optional = true
+dev = true
+peer = true
+frozen-lockfile = false
+
+[install.cache]
+# Use default cache directory
+disable = false
+
+[test]
+# Configure test runner
+preload = ["./src/test/setup.ts"]
