@@ -108,7 +108,7 @@ export async function fetchFhirResource<T>(
     },
   });
 
-  // Log PHI access
+  // Log PHI access (including vendor information)
   await logPHIAccess({
     userId: context.userId,
     userName: context.userName,
@@ -121,6 +121,58 @@ export async function fetchFhirResource<T>(
     userAgent: navigator.userAgent,
     timestamp: new Date(),
     iss: extractFhirBaseUrl(url),
+    vendor: detectVendor(url), // NEW: Track Epic/Cerner/Athena
+  });
+
+  return response.json();
+}
+```
+
+**⚠️ CRITICAL for Multi-Vendor Write Operations**:
+
+All FHIR write operations MUST be logged with additional metadata:
+
+```typescript
+// src/lib/fhir-write.ts
+export async function createFhirResource<T>(
+  fhirBaseUrl: string,
+  resourceType: string,
+  resource: T,
+  accessToken: string,
+  context: { userId: string; userName: string; ipAddress: string }
+): Promise<WriteResult<T>> {
+  // Log BEFORE write attempt
+  await logPHIAccess({
+    userId: context.userId,
+    userName: context.userName,
+    userRole: 'clinician',
+    patientId: (resource as any).subject?.reference?.split('/')[1],
+    resourceType,
+    resourceId: 'creating',
+    action: 'write', // NEW: Track write operations
+    ipAddress: context.ipAddress,
+    userAgent: navigator.userAgent,
+    timestamp: new Date(),
+    iss: fhirBaseUrl,
+    vendor: detectVendor(fhirBaseUrl),
+    operationType: 'create', // NEW: create vs update
+  });
+
+  const response = await fetch(`${fhirBaseUrl}/${resourceType}`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/fhir+json',
+    },
+    body: JSON.stringify(resource),
+  });
+
+  // Log result (success or failure)
+  await logPHIAccess({
+    ...previousLogData,
+    success: response.ok,
+    httpStatus: response.status,
+    errorMessage: response.ok ? null : await response.text(),
   });
 
   return response.json();
@@ -130,19 +182,41 @@ export async function fetchFhirResource<T>(
 **Axiom Query for Compliance Reports**:
 
 ```
+// PHI Access by Vendor
 ['phi-access-logs']
 | where _time > ago(30d)
-| summarize count() by userId, patientId, resourceType
+| summarize count() by userId, patientId, resourceType, vendor
 | order by count() desc
+
+// Write Operations by Vendor (CRITICAL for multi-vendor launch)
+['phi-access-logs']
+| where action == 'write'
+| where _time > ago(7d)
+| summarize 
+    total = count(),
+    success = countif(success == true),
+    failed = countif(success == false)
+    by vendor, resourceType
+| extend success_rate = (success * 100.0) / total
+| order by failed desc
+
+// Failed Write Operations (Alert if > 5% failure rate)
+['phi-access-logs']
+| where action == 'write' and success == false
+| where _time > ago(1h)
+| summarize count() by vendor, resourceType, errorMessage
 ```
 
 **Validation**:
 - [ ] All FHIR resource reads logged
+- [ ] **All FHIR write operations logged (Epic, Cerner, Athena)**
+- [ ] **Vendor identified in every log entry**
 - [ ] Logs retained for 6 years (HIPAA requirement)
 - [ ] Audit reports generated monthly
 - [ ] Anomaly detection alerts configured
+- [ ] **Write operation failure alerts configured (<5% failure rate)**
 
-**Effort**: 3 days
+**Effort**: 3 days (READ) + 2 days (WRITE operations)
 **Priority**: 🔴 P0 (Blocking production)
 
 ---
@@ -368,27 +442,60 @@ async headers() {
 
 **Risk Level**: 🔴 **Critical** - HIPAA violation if hosting PHI without BAA
 
+**⚠️ CRITICAL UPDATE for Multi-Vendor Launch**:
+
+Since the multi-vendor deployment strategy uses vendor-specific subdomains (epic.yourdomain.com, cerner.yourdomain.com, athena.yourdomain.com), BAA requirements extend to:
+
+1. **Primary Hosting Provider** (Vercel/Cloudflare/AWS)
+2. **Monitoring & Logging** (Axiom)
+3. **Analytics** (PostHog - only if tracking non-PHI events)
+4. **Caching** (Upstash Redis/Vercel KV)
+5. **Rate Limiting** (Upstash)
+
 **Action Items**:
 
 1. **Vercel**:
    - Upgrade to Enterprise plan ($2,500/month+) to get BAA
    - Contact Vercel sales: enterprise@vercel.com
    - Complete BAA paperwork (2-4 weeks)
+   - **IMPORTANT**: BAA covers all subdomains under your account
 
 2. **Cloudflare**:
    - Contact Cloudflare for HIPAA compliance add-on
    - Sign BAA with Cloudflare
+   - Configure Cloudflare for all vendor subdomains
 
 3. **Alternative: AWS with HIPAA Compliance**:
    - Use AWS (inherently HIPAA-eligible)
    - Sign AWS BAA (free, self-service)
    - Deploy on ECS Fargate or App Runner
+   - Use Route 53 for vendor-specific subdomains
+
+4. **Axiom (Logging & Monitoring)**:
+   - Contact Axiom sales for BAA
+   - Axiom is HIPAA-compliant but requires BAA
+   - Cost: Included in Enterprise plan
+
+5. **Upstash (Redis/Rate Limiting)**:
+   - Contact Upstash for BAA
+   - Upstash supports HIPAA compliance
+   - Cost: Included in Pro plan
+
+6. **PostHog (Analytics)**:
+   - ⚠️ **Do NOT send PHI to PostHog**
+   - BAA may not be required if only tracking non-PHI events
+   - Ensure autocapture is disabled
+   - Legal review recommended
 
 **Validation**:
 - [ ] BAA signed with primary hosting provider
-- [ ] BAA signed with any third-party services handling PHI (Axiom, PostHog)
+- [ ] BAA signed with Axiom (logging)
+- [ ] BAA signed with Upstash (caching/rate limiting)
+- [ ] BAA signed with any third-party services handling PHI
+- [ ] **BAA covers all vendor-specific subdomains**
 - [ ] Legal review completed
 - [ ] BAA documents stored securely
+- [ ] BAA renewal dates tracked
 
 **Effort**: 4 weeks (legal + procurement)
 **Priority**: 🔴 P0 (Blocking production)
@@ -736,6 +843,45 @@ export class ErrorBoundary extends Component<
 | where _time > ago(24h)
 | summarize count() by userId, userName
 | order by count() desc
+
+// ⚠️ CRITICAL for Multi-Vendor Launch: Vendor-Specific Queries
+
+// SMART Launch Success Rate by Vendor
+['smart-launch-events']
+| where _time > ago(24h)
+| summarize 
+    total = count(),
+    success = countif(status == 'success'),
+    failed = countif(status == 'failed')
+    by vendor
+| extend success_rate = (success * 100.0) / total
+| order by success_rate asc
+// ALERT: If any vendor < 95% success rate
+
+// Write Operation Failures by Vendor
+['phi-access-logs']
+| where action == 'write'
+| where success == false
+| where _time > ago(1h)
+| summarize count() by vendor, resourceType, errorMessage
+| order by count() desc
+// ALERT: If any vendor > 5% failure rate
+
+// API Latency by Vendor (P95)
+['http.request']
+| where path startswith '/fhir'
+| where _time > ago(1h)
+| summarize p95 = percentiles(duration, 95) by vendor
+| where p95 > 2000
+// ALERT: If any vendor P95 > 2 seconds
+
+// Token Refresh Failures by Vendor
+['auth-events']
+| where event == 'token_refresh'
+| where success == false
+| where _time > ago(1h)
+| summarize count() by vendor
+// ALERT: If any vendor > 5 failures/hour
 ```
 
 **Slack Alerts**:
@@ -749,6 +895,58 @@ export class ErrorBoundary extends Component<
   "action": "slack_webhook",
   "webhook_url": process.env.SLACK_WEBHOOK_URL,
 }
+
+// ⚠️ CRITICAL Multi-Vendor Alerts
+
+// Epic Launch Failure Alert
+{
+  "name": "Epic SMART Launch Failures",
+  "query": "['smart-launch-events'] | where vendor == 'epic' | where status == 'failed' | where _time > ago(15m) | summarize count()",
+  "threshold": 5,
+  "action": "slack_webhook",
+  "webhook_url": process.env.SLACK_WEBHOOK_URL,
+  "severity": "critical",
+}
+
+// Cerner Launch Failure Alert
+{
+  "name": "Cerner SMART Launch Failures",
+  "query": "['smart-launch-events'] | where vendor == 'cerner' | where status == 'failed' | where _time > ago(15m) | summarize count()",
+  "threshold": 5,
+  "action": "slack_webhook",
+  "webhook_url": process.env.SLACK_WEBHOOK_URL,
+  "severity": "critical",
+}
+
+// Athena Launch Failure Alert
+{
+  "name": "Athena SMART Launch Failures",
+  "query": "['smart-launch-events'] | where vendor == 'athena' | where status == 'failed' | where _time > ago(15m) | summarize count()",
+  "threshold": 5,
+  "action": "slack_webhook",
+  "webhook_url": process.env.SLACK_WEBHOOK_URL,
+  "severity": "critical",
+}
+
+// Write Operation Failure Alert (Any Vendor)
+{
+  "name": "FHIR Write Failures",
+  "query": "['phi-access-logs'] | where action == 'write' | where success == false | where _time > ago(15m) | summarize count() by vendor",
+  "threshold": 10,
+  "action": "slack_webhook",
+  "webhook_url": process.env.SLACK_WEBHOOK_URL,
+  "severity": "high",
+}
+
+// High API Latency Alert (Per Vendor)
+{
+  "name": "High API Latency - Epic",
+  "query": "['http.request'] | where vendor == 'epic' | where _time > ago(5m) | summarize p95 = percentiles(duration, 95)",
+  "threshold": 3000, // 3 seconds
+  "action": "slack_webhook",
+  "webhook_url": process.env.SLACK_WEBHOOK_URL,
+  "severity": "warning",
+}
 ```
 
 **Validation**:
@@ -756,8 +954,12 @@ export class ErrorBoundary extends Component<
 - [ ] Slack alerts configured for critical errors
 - [ ] Dashboard created for key metrics
 - [ ] Axiom retention set to 6 years (HIPAA)
+- [ ] **Vendor-specific alerts configured (Epic, Cerner, Athena)**
+- [ ] **Write operation failure alerts configured**
+- [ ] **Launch failure alerts configured per vendor**
+- [ ] **API latency alerts configured per vendor**
 
-**Effort**: 4 days
+**Effort**: 4 days + 2 days (vendor-specific)
 **Priority**: 🟠 P1
 
 ---
@@ -1047,6 +1249,10 @@ export function usePatientQuery(fhirBaseUrl: string | null, token: TokenData | n
 
 **Risk Level**: 🟠 **High** - May ship broken SMART launch flow, OAuth errors
 
+**⚠️ CRITICAL UPDATE for Multi-Vendor Launch**:
+
+E2E tests MUST cover all three vendors (Epic, Cerner, Athena) separately, as each has unique OAuth flows, scope formats, and error handling requirements.
+
 **Implementation**:
 
 **Playwright Setup**:
@@ -1060,7 +1266,7 @@ npx playwright install
 // tests/e2e/smart-launch.spec.ts
 import { test, expect } from '@playwright/test';
 
-test.describe('SMART Launch Flow', () => {
+test.describe('SMART Launch Flow - Generic', () => {
   test('should complete EHR launch flow', async ({ page }) => {
     // 1. Navigate to SMART Launcher
     await page.goto('https://launch.smarthealthit.org');
@@ -1104,6 +1310,180 @@ test.describe('SMART Launch Flow', () => {
 });
 ```
 
+**⚠️ NEW: Vendor-Specific E2E Tests**:
+
+```typescript
+// tests/e2e/epic-launch.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('Epic SMART Launch', () => {
+  test('should complete Epic launch with .rs scopes', async ({ page }) => {
+    // Use Epic sandbox environment
+    const epicIss = 'https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4';
+    
+    await page.goto(`http://localhost:3000/auth/smart/login?iss=${epicIss}&launch=test-launch`);
+    
+    // Verify Epic OAuth redirect
+    await page.waitForURL('**/oauth2/authorize**');
+    
+    // Verify scopes use .rs format (Epic-specific)
+    const url = page.url();
+    expect(url).toContain('patient%2FObservation.rs'); // Epic .rs scope
+    expect(url).not.toContain('patient%2FObservation.read'); // NOT .read
+    
+    // Continue Epic OAuth flow...
+  });
+  
+  test('should load Epic patient banner styles', async ({ page }) => {
+    // After successful launch
+    await page.goto('http://localhost:3000/patient');
+    
+    // Verify smart_style_url CSS loaded
+    const styleLinks = await page.locator('link[rel="stylesheet"]').all();
+    const hasEpicStyles = await Promise.all(
+      styleLinks.map(async (link) => {
+        const href = await link.getAttribute('href');
+        return href?.includes('epic.com/smart-style');
+      })
+    );
+    
+    expect(hasEpicStyles.some(Boolean)).toBe(true);
+  });
+  
+  test('should handle Epic-specific errors', async ({ page }) => {
+    // Test Epic scope denial error
+    // TODO: Simulate Epic scope denial
+  });
+});
+
+// tests/e2e/cerner-launch.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('Cerner SMART Launch', () => {
+  test('should complete Cerner launch with .read scopes', async ({ page }) => {
+    // Use Cerner sandbox environment
+    const cernerIss = 'https://fhir-myrecord.cerner.com/r4/ec2458f2-1e24-41c8-b71b-0e701af7583d';
+    
+    await page.goto(`http://localhost:3000/auth/smart/login?iss=${cernerIss}&launch=test-launch`);
+    
+    // Verify Cerner OAuth redirect
+    await page.waitForURL('**/tenants/ec2458f2-1e24-41c8-b71b-0e701af7583d/protocols/oauth2/profiles/smart-v1/authorize**');
+    
+    // Verify scopes use .read format (Cerner-specific)
+    const url = page.url();
+    expect(url).toContain('patient%2FObservation.read'); // Cerner .read scope
+    expect(url).not.toContain('patient%2FObservation.rs'); // NOT .rs
+    
+    // Continue Cerner OAuth flow...
+  });
+  
+  test('should extract Cerner tenant ID', async ({ page }) => {
+    const cernerIss = 'https://fhir-myrecord.cerner.com/r4/ec2458f2-1e24-41c8-b71b-0e701af7583d';
+    
+    await page.goto(`http://localhost:3000/auth/smart/login?iss=${cernerIss}`);
+    
+    // Verify tenant ID in storage
+    const tenantId = await page.evaluate(() => 
+      localStorage.getItem('vendor-tenant-id')
+    );
+    expect(tenantId).toBe('ec2458f2-1e24-41c8-b71b-0e701af7583d');
+  });
+});
+
+// tests/e2e/athena-launch.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('Athena SMART Launch', () => {
+  test('should complete Athena launch', async ({ page }) => {
+    // Use Athena sandbox environment
+    const athenaIss = 'https://api.preview.platform.athenahealth.com/fhir/r4';
+    
+    await page.goto(`http://localhost:3000/auth/smart/login?iss=${athenaIss}&launch=test-launch`);
+    
+    // Verify Athena OAuth redirect
+    await page.waitForURL('**/oauth2/v1/authorize**');
+    
+    // Continue Athena OAuth flow...
+  });
+  
+  test('should extract Athena practice ID', async ({ page }) => {
+    const athenaIss = 'https://api.preview.platform.athenahealth.com/fhir/r4/12345';
+    
+    await page.goto(`http://localhost:3000/auth/smart/login?iss=${athenaIss}`);
+    
+    // Verify practice ID in storage
+    const practiceId = await page.evaluate(() => 
+      localStorage.getItem('vendor-practice-id')
+    );
+    expect(practiceId).toBe('12345');
+  });
+  
+  test('should handle Athena rate limiting', async ({ page }) => {
+    // Simulate multiple rapid requests
+    // Verify rate limit handling (10 req/s per practice)
+    // TODO: Implement rate limit test
+  });
+});
+```
+
+**⚠️ NEW: Write Operations E2E Tests**:
+
+```typescript
+// tests/e2e/fhir-write.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('FHIR Write Operations', () => {
+  test.beforeEach(async ({ page }) => {
+    // Complete SMART launch and navigate to patient page
+    // TODO: Setup authenticated session
+  });
+  
+  test('should create clinical note in Epic', async ({ page }) => {
+    await page.goto('http://localhost:3000/patient/write/note');
+    
+    // Fill out note form
+    await page.fill('input[name="title"]', 'E2E Test Note');
+    await page.fill('textarea[name="content"]', 'This is a test clinical note created by E2E tests.');
+    await page.selectOption('select[name="category"]', 'progress-note');
+    
+    // Submit form
+    await page.click('button:has-text("Save Note to EHR")');
+    
+    // Verify success message
+    await expect(page.locator('text=Clinical note created successfully')).toBeVisible({ timeout: 10000 });
+    
+    // Verify audit log
+    // TODO: Check Axiom for audit log entry
+  });
+  
+  test('should validate FHIR resource before create', async ({ page }) => {
+    await page.goto('http://localhost:3000/patient/write/note');
+    
+    // Submit without required fields
+    await page.click('button:has-text("Save Note to EHR")');
+    
+    // Verify validation errors
+    await expect(page.locator('text=Title is required')).toBeVisible();
+    await expect(page.locator('text=Note content must be at least 10 characters')).toBeVisible();
+  });
+  
+  test('should handle write permission denied', async ({ page }) => {
+    // Simulate user without write scopes
+    // Verify write UI is disabled
+    await page.goto('http://localhost:3000/patient');
+    
+    const createButton = page.locator('button:has-text("Create Note")');
+    await expect(createButton).toBeDisabled();
+    await expect(page.locator('text=Read-only access')).toBeVisible();
+  });
+  
+  test('should handle version conflict (409)', async ({ page }) => {
+    // Simulate concurrent edit scenario
+    // TODO: Implement version conflict test
+  });
+});
+```
+
 **Run E2E Tests**:
 
 ```bash
@@ -1141,11 +1521,17 @@ jobs:
 
 **Validation**:
 - [ ] SMART launch flow E2E test passes
+- [ ] **Epic SMART launch E2E test passes (with .rs scopes)**
+- [ ] **Cerner SMART launch E2E test passes (with .read scopes)**
+- [ ] **Athena SMART launch E2E test passes**
 - [ ] Token refresh E2E test passes
 - [ ] Error handling E2E tests pass
+- [ ] **Write operations E2E tests pass (all vendors)**
+- [ ] **FHIR validation E2E tests pass**
+- [ ] **Permission denied scenarios tested**
 - [ ] E2E tests run in CI/CD
 
-**Effort**: 8 days
+**Effort**: 8 days (generic) + 6 days (vendor-specific) + 4 days (write operations) = 18 days
 **Priority**: 🔴 P0
 
 ---
@@ -1635,6 +2021,253 @@ export function HelpTooltip({ content }: { content: string }) {
 
 ---
 
+### 🚨 Priority 0: Multi-Vendor Launch Readiness (BLOCKING)
+
+#### GAP-021: Multi-Vendor Launch Checklist & Pre-Launch Validation
+
+**Current State**: Application supports read-only SMART launch, no multi-vendor write operations
+
+**Risk Level**: 🔴 **Critical** - Cannot launch to Epic, Cerner, Athena without these
+
+**⚠️ BLOCKING ITEMS for Multi-Vendor Production Launch**:
+
+This gap aggregates all critical pre-launch requirements for deploying the multi-vendor EHR integration (Epic, Cerner, Athena) with bi-directional write operations as defined in `multi-vendor-ehr-integration-prp.md`.
+
+**Phase 1: Vendor Adapter Implementation (Must Complete Before Write Operations)**:
+
+```typescript
+// 1. Vendor Detection
+✅ src/lib/vendor-detection.ts
+  - [ ] detectVendor() correctly identifies Epic/Cerner/Athena from ISS URL
+  - [ ] getVendorAdapter() returns correct adapter instance
+  - [ ] Unit tests cover all vendor URL patterns
+
+// 2. Vendor Adapters
+✅ src/lib/vendors/base-adapter.ts
+✅ src/lib/vendors/epic-adapter.ts
+✅ src/lib/vendors/cerner-adapter.ts
+✅ src/lib/vendors/athena-adapter.ts
+  - [ ] EpicAdapter formats scopes to .rs (patient/Observation.rs)
+  - [ ] CernerAdapter keeps .read scopes (patient/Observation.read)
+  - [ ] AthenaAdapter handles practice ID extraction
+  - [ ] All adapters implement VendorAdapter interface
+  - [ ] Vendor-specific error handling implemented
+
+// 3. Enhanced SMART Auth
+✅ src/lib/smart-auth.ts (ENHANCE EXISTING)
+  - [ ] initializeSmartAuth() uses vendor adapters
+  - [ ] Vendor type stored in OAuth state
+  - [ ] Scopes formatted per vendor before authorization
+  - [ ] Token metadata includes vendor information
+```
+
+**Phase 2: Write Operations Implementation (Must Complete Before Production)**:
+
+```typescript
+// 4. FHIR Write Utilities
+✅ src/lib/fhir-write.ts (NEW FILE)
+  - [ ] createFhirResource() implemented with audit logging
+  - [ ] updateFhirResource() implemented with version conflict handling
+  - [ ] Write operations include vendor in audit logs
+  - [ ] OperationOutcome errors parsed correctly
+  - [ ] Optimistic locking implemented (If-Match header)
+
+// 5. React Hooks for Writes
+✅ src/hooks/use-fhir-mutation.ts (NEW FILE)
+  - [ ] useCreateFhirResource() hook implemented
+  - [ ] useUpdateFhirResource() hook implemented
+  - [ ] React Query invalidation after successful write
+  - [ ] Error handling for write failures
+  - [ ] Permission checks before mutation
+
+// 6. Write UI Components
+✅ src/components/patient/note-editor.tsx (NEW FILE)
+  - [ ] Note editor form with validation
+  - [ ] FHIR DocumentReference builder
+  - [ ] Success/error feedback to user
+  - [ ] Disabled state when user lacks write permissions
+```
+
+**Phase 3: Security & Compliance (BLOCKING PRODUCTION)**:
+
+```typescript
+// 7. Audit Logging (GAP-001 Extended)
+✅ src/lib/audit-logger.ts
+  - [ ] All READ operations logged with vendor
+  - [ ] All WRITE operations logged with vendor
+  - [ ] Success/failure tracked in logs
+  - [ ] Write operation type tracked (create vs update)
+  - [ ] HTTP status codes logged
+  - [ ] Error messages logged (without PHI)
+  - [ ] Axiom queries created for write operation monitoring
+
+// 8. Vendor-Specific Monitoring (GAP-009 Extended)
+✅ Axiom Dashboards & Alerts
+  - [ ] Epic launch success rate alert configured
+  - [ ] Cerner launch success rate alert configured
+  - [ ] Athena launch success rate alert configured
+  - [ ] Write operation failure alerts (per vendor)
+  - [ ] API latency alerts (per vendor)
+  - [ ] Token refresh failure alerts (per vendor)
+
+// 9. Business Associate Agreements (GAP-005 Extended)
+✅ Legal Documentation
+  - [ ] BAA signed with hosting provider (covers all subdomains)
+  - [ ] BAA signed with Axiom (audit logging)
+  - [ ] BAA signed with Upstash (caching/rate limiting)
+  - [ ] BAA renewal dates tracked
+  - [ ] Legal review completed for multi-vendor deployment
+```
+
+**Phase 4: Testing & Validation (BLOCKING PRODUCTION)**:
+
+```typescript
+// 10. Vendor-Specific E2E Tests (GAP-013 Extended)
+✅ tests/e2e/epic-launch.spec.ts (NEW FILE)
+✅ tests/e2e/cerner-launch.spec.ts (NEW FILE)
+✅ tests/e2e/athena-launch.spec.ts (NEW FILE)
+✅ tests/e2e/fhir-write.spec.ts (NEW FILE)
+  - [ ] Epic launch test passes (verifies .rs scopes)
+  - [ ] Cerner launch test passes (verifies .read scopes)
+  - [ ] Athena launch test passes (verifies practice ID)
+  - [ ] Write operations E2E test passes
+  - [ ] FHIR validation test passes
+  - [ ] Permission denied scenario tested
+  - [ ] Version conflict (409) scenario tested
+
+// 11. Vendor Sandbox Testing
+✅ Manual QA Checklist
+  - [ ] Epic sandbox: Complete launch flow
+  - [ ] Epic sandbox: Create DocumentReference
+  - [ ] Epic sandbox: Verify note appears in chart
+  - [ ] Cerner sandbox: Complete launch flow
+  - [ ] Cerner sandbox: Create DocumentReference
+  - [ ] Cerner sandbox: Verify note appears in chart
+  - [ ] Athena sandbox: Complete launch flow (if access granted)
+  - [ ] Athena sandbox: Create DocumentReference
+  - [ ] Athena sandbox: Verify note appears in chart
+```
+
+**Phase 5: Deployment & Configuration (BLOCKING PRODUCTION)**:
+
+```typescript
+// 12. Vendor-Specific Configurations
+✅ src/config/config.epic.prod.json (EXISTS - UPDATE)
+✅ src/config/config.cerner.prod.json (EXISTS - UPDATE)
+✅ src/config/config.athena.prod.json (NEW FILE)
+  - [ ] Epic config includes write scopes (.ws)
+  - [ ] Cerner config includes write scopes (.write)
+  - [ ] Athena config created with write scopes
+  - [ ] All configs have correct CLIENT_IDs for production
+
+// 13. Multi-Vendor Deployment Strategy
+✅ Subdomain Deployment
+  - [ ] epic.yourdomain.com deployed with Epic config
+  - [ ] cerner.yourdomain.com deployed with Cerner config
+  - [ ] athena.yourdomain.com deployed with Athena config
+  - [ ] SSL/TLS certificates valid for all subdomains
+  - [ ] DNS configured for all subdomains
+  - [ ] Monitoring configured for all subdomains
+
+// 14. Feature Flags for Gradual Rollout
+✅ PostHog Feature Flags
+  - [ ] "enable_fhir_writes_epic" flag created (10% → 50% → 100%)
+  - [ ] "enable_fhir_writes_cerner" flag created
+  - [ ] "enable_fhir_writes_athena" flag created
+  - [ ] Rollout plan documented
+  - [ ] Rollback procedure tested
+```
+
+**Phase 6: Vendor Certification (PARALLEL, LONG-RUNNING)**:
+
+```typescript
+// 15. Epic App Orchard (8-12 weeks)
+✅ App Registration & Certification
+  - [ ] App registered at apporchard.epic.com
+  - [ ] CLIENT_ID configured for production
+  - [ ] Security questionnaire submitted
+  - [ ] Sandbox testing completed
+  - [ ] Performance benchmarks met (<2s load time)
+  - [ ] Security review approved
+  - [ ] Production deployment approved
+
+// 16. Cerner Code Console (4-6 weeks)
+✅ App Registration & Certification
+  - [ ] App registered at code-console.cerner.com
+  - [ ] CLIENT_ID configured for production
+  - [ ] Sandbox testing completed
+  - [ ] Production review submitted
+  - [ ] Oracle Health approval received
+
+// 17. Athena Marketplace (6-8 weeks)
+✅ App Registration & Certification
+  - [ ] Developer account created
+  - [ ] Sandbox access granted
+  - [ ] Testing completed
+  - [ ] Marketplace submission approved
+```
+
+**Critical Pre-Launch Validation Gates**:
+
+**Gate 1: Vendor Adapters Functional (Week 4)**
+- [ ] All 3 vendor adapters pass unit tests
+- [ ] Scope formatting verified per vendor
+- [ ] SMART launch succeeds for all 3 vendors in sandbox
+
+**Gate 2: Write Operations Functional (Week 8)**
+- [ ] Write operations work in all 3 sandboxes
+- [ ] Audit logging captures all write operations
+- [ ] FHIR validation catches invalid resources
+- [ ] Version conflicts handled gracefully
+
+**Gate 3: Security & Compliance (Week 10)**
+- [ ] All GAP-001 (audit logging) requirements met
+- [ ] All GAP-005 (BAA) agreements signed
+- [ ] All GAP-009 (monitoring) alerts configured
+- [ ] Penetration test passed (no critical findings)
+
+**Gate 4: E2E Tests Passing (Week 12)**
+- [ ] All vendor-specific E2E tests pass
+- [ ] All write operation E2E tests pass
+- [ ] CI/CD pipeline running all tests
+- [ ] Test coverage > 80%
+
+**Gate 5: Vendor Certification (Week 24)**
+- [ ] Epic production approval received
+- [ ] Cerner production approval received
+- [ ] Athena production approval received (if applicable)
+
+**Total Estimated Timeline**: 24 weeks (6 months)
+
+**Validation Commands**:
+
+```bash
+# Run all vendor-specific tests
+npx playwright test tests/e2e/epic-launch.spec.ts
+npx playwright test tests/e2e/cerner-launch.spec.ts
+npx playwright test tests/e2e/athena-launch.spec.ts
+npx playwright test tests/e2e/fhir-write.spec.ts
+
+# Verify vendor detection
+bun test src/lib/vendors/
+
+# Type check
+bun run type-check
+
+# Lint
+bun run lint
+
+# Build all vendor configurations
+bun run build:epic
+bun run build:cerner
+bun run build:athena
+```
+
+**Effort**: 60-80 days engineering + 16 weeks vendor certification (parallel)
+**Priority**: 🔴 P0 (BLOCKING MULTI-VENDOR PRODUCTION LAUNCH)
+
+---
+
 ## Epic/Cerner/Athena Vendor-Specific Requirements
 
 ### Epic App Orchard Certification Requirements
@@ -1687,62 +2320,86 @@ export function HelpTooltip({ content }: { content: string }) {
 
 ## Implementation Roadmap
 
-### Phase 1: Security & Compliance (4-6 weeks)
+### Phase 1: Multi-Vendor Infrastructure & Security (6-8 weeks)
+
+**⚠️ UPDATED for Multi-Vendor Launch**:
 
 **Must-Fix (Blocking Production)**:
 - ✅ ADR Documentation
-- [ ] GAP-001: Audit Logging (3 days)
+- [ ] GAP-021: Multi-Vendor Launch Checklist - Phase 1 (Vendor Adapters) (10 days)
+- [ ] GAP-001: Audit Logging with Vendor Tracking (3 days + 2 days write ops)
 - [ ] GAP-002: Encryption at Rest (5 days)
 - [ ] GAP-003: Rate Limiting (2 days)
 - [ ] GAP-004: Content Security Policy (2 days)
-- [ ] GAP-005: Business Associate Agreement (4 weeks legal process)
-- [ ] GAP-013: E2E Tests (8 days)
+- [ ] GAP-005: Business Associate Agreement - Multi-Vendor (4 weeks legal process)
+- [ ] GAP-013: E2E Tests - Vendor-Specific (8 days + 6 days vendor-specific)
 
-**Total Effort**: 20 days + 4 weeks BAA
+**Total Effort**: 38 days engineering + 4 weeks BAA (parallel)
 
 ---
 
-### Phase 2: Observability & Testing (3-4 weeks)
+### Phase 2: Write Operations & Observability (4-5 weeks)
 
-- [ ] GAP-009: Production Monitoring (4 days)
+**⚠️ UPDATED for Multi-Vendor Launch**:
+
+- [ ] GAP-021: Multi-Vendor Launch Checklist - Phase 2 (Write Operations) (12 days)
+- [ ] GAP-009: Production Monitoring with Vendor Metrics (4 days + 2 days vendor-specific)
 - [ ] GAP-010: User Analytics (3 days)
 - [ ] GAP-011: Load Testing (5 days)
 - [ ] GAP-014: Component Tests (6 days)
 - [ ] GAP-015: Accessibility Testing (4 days)
 
-**Total Effort**: 22 days
+**Total Effort**: 36 days
 
 ---
 
-### Phase 3: Deployment & DevOps (2-3 weeks)
+### Phase 3: Multi-Vendor Deployment & Feature Flags (3-4 weeks)
 
+**⚠️ UPDATED for Multi-Vendor Launch**:
+
+- [ ] GAP-021: Multi-Vendor Launch Checklist - Phase 3 (Deployment) (8 days)
 - [ ] GAP-016: CI/CD Pipeline (3 days)
-- [ ] GAP-017: Canary Rollout (4 days)
+- [ ] GAP-017: Canary Rollout with Vendor-Specific Flags (4 days)
 - [ ] GAP-020: User Documentation (10 days)
+- [ ] Multi-vendor subdomain deployment (epic/cerner/athena subdomains) (3 days)
+- [ ] Feature flag configuration per vendor (2 days)
 
-**Total Effort**: 17 days
+**Total Effort**: 30 days
 
 ---
 
-### Phase 4: Vendor Certification (8-12 weeks)
+### Phase 4: Vendor Certification (12-16 weeks, PARALLEL)
 
-**Epic**:
+**⚠️ CRITICAL for Multi-Vendor Launch**:
+
+These certification processes run in parallel and are MANDATORY for production launch to each vendor.
+
+**Epic** (8-12 weeks):
+- [ ] GAP-021: Multi-Vendor Launch Checklist - Phase 6 (Epic Certification)
 - [ ] Register app on App Orchard
-- [ ] Complete sandbox testing
+- [ ] Configure write scopes (.ws for DocumentReference)
+- [ ] Complete sandbox testing with write operations
 - [ ] Submit security questionnaire
+- [ ] Performance benchmarks (<2s load time)
 - [ ] Wait for Epic security review (6-8 weeks)
 - [ ] Get production approval
 
-**Cerner**:
+**Cerner** (4-6 weeks):
+- [ ] GAP-021: Multi-Vendor Launch Checklist - Phase 6 (Cerner Certification)
 - [ ] Register on Code Console
-- [ ] Test on Cerner sandbox
+- [ ] Configure write scopes (.write for DocumentReference)
+- [ ] Test on Cerner sandbox with write operations
 - [ ] Submit for production review (4-6 weeks)
+- [ ] Get Oracle Health approval
 
-**Athena**:
+**Athena** (6-8 weeks):
+- [ ] GAP-021: Multi-Vendor Launch Checklist - Phase 6 (Athena Certification)
 - [ ] Contact Athena developer relations
 - [ ] Get sandbox access
-- [ ] Complete testing
+- [ ] Configure write scopes
+- [ ] Complete testing with write operations
 - [ ] Submit for review (6-8 weeks)
+- [ ] Get marketplace approval
 
 **Total Timeline**: 12-16 weeks (parallel processes)
 
@@ -1906,7 +2563,9 @@ export function HelpTooltip({ content }: { content: string }) {
 
 ---
 
-**Document Status**: ✅ Complete
+**Document Status**: ✅ Complete (UPDATED for Multi-Vendor Launch)
+
+**Last Updated**: 2025-01-20 (Multi-vendor integration requirements added)
 
 **Next Review Date**: Monthly until production launch
 
@@ -1914,9 +2573,36 @@ export function HelpTooltip({ content }: { content: string }) {
 
 ---
 
-**Total Estimated Effort**: 60-80 days of engineering work + 12-16 weeks vendor certification
+**⚠️ CRITICAL UPDATES for Multi-Vendor Launch**:
 
-**Recommended Team Size**: 2-3 engineers (1 senior, 1-2 mid-level)
+**Total Estimated Effort**: 104 days engineering + 16 weeks vendor certification (parallel)
 
-**Target Production Launch**: Q2 2025 (assuming immediate start)
+**Breakdown**:
+- Phase 1 (Infrastructure & Security): 38 days
+- Phase 2 (Write Operations & Observability): 36 days  
+- Phase 3 (Deployment & Feature Flags): 30 days
+- Phase 4 (Vendor Certification): 12-16 weeks (parallel, not additive)
+
+**Recommended Team Size**: 3-4 engineers (1 senior lead, 2 mid-level, 1 junior)
+
+**Target Production Launch**: Q3 2025 (6 months from start, assuming immediate start and parallel vendor certification)
+
+**BLOCKING DEPENDENCIES for Multi-Vendor Launch**:
+1. GAP-021: All 6 phases of multi-vendor launch checklist
+2. GAP-001: Audit logging with vendor tracking and write operations
+3. GAP-005: BAA agreements covering all subdomains and services
+4. GAP-013: Vendor-specific E2E tests (Epic, Cerner, Athena)
+5. Epic, Cerner, Athena production approvals
+
+**Next Steps**:
+1. Review multi-vendor-ehr-integration-prp.md with product/engineering leads
+2. Begin Phase 1: Vendor adapter implementation (Week 1-4)
+3. Start vendor certification processes early (parallel with development)
+4. Resolve blocking dependencies (audit logging, BAA, E2E tests)
+5. Set up vendor-specific sandboxes for testing
+
+**Reference Documents**:
+- `docs/PRPs/multi-vendor-ehr-integration-prp.md` - Multi-vendor implementation guide
+- `docs/PRPs/adr-smart-on-fhir-architecture.md` - Architecture decisions
+- `docs/PRPs/EXECUTIVE_SUMMARY.md` - Executive overview
 
