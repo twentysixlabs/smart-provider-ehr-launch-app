@@ -10,7 +10,11 @@ import {
   formatObservationValue,
   roundToTwoDecimalsOrInteger,
 } from '@/lib/fhir-utils';
-import type { FhirBundle, FhirEncounter, FhirResource } from '@/types';
+import type { Bundle, Encounter, Resource } from '@medplum/fhirtypes';
+
+type FhirBundle<T extends Resource> = Bundle<T>;
+type FhirEncounter = Encounter;
+type FhirResource = Resource;
 
 interface DataCardProps {
   title: string;

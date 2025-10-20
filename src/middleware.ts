@@ -5,7 +5,6 @@
  * Note: This is separate from SMART on FHIR authentication.
  */
 
-import { betterFetch } from '@better-fetch/fetch';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
@@ -37,17 +36,30 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check session
-  const session = await betterFetch<{
-    user: unknown;
-  }>('/api/auth/session', {
-    baseURL: request.nextUrl.origin,
-    headers: {
-      cookie: request.headers.get('cookie') || '',
-    },
-  });
+  try {
+    const sessionResponse = await fetch(`${request.nextUrl.origin}/api/auth/session`, {
+      headers: {
+        cookie: request.headers.get('cookie') || '',
+      },
+    });
 
-  if (!session.data?.user) {
-    // Redirect to sign in with return URL
+    if (!sessionResponse.ok) {
+      // Redirect to sign in with return URL
+      const signInUrl = new URL('/auth/sign-in', request.url);
+      signInUrl.searchParams.set('from', pathname);
+      return NextResponse.redirect(signInUrl);
+    }
+
+    const session = await sessionResponse.json();
+
+    if (!session?.user) {
+      // Redirect to sign in with return URL
+      const signInUrl = new URL('/auth/sign-in', request.url);
+      signInUrl.searchParams.set('from', pathname);
+      return NextResponse.redirect(signInUrl);
+    }
+  } catch (error) {
+    // On error, redirect to sign in
     const signInUrl = new URL('/auth/sign-in', request.url);
     signInUrl.searchParams.set('from', pathname);
     return NextResponse.redirect(signInUrl);

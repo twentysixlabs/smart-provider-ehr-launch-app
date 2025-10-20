@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { signUp } from '@/lib/auth-client';
 
@@ -94,11 +95,10 @@ export function SignUpForm({ onSuccess, redirectTo = '/patient' }: SignUpFormPro
 
           <div className="space-y-2">
             <Label htmlFor="name">Full Name</Label>
-            <input
+            <Input
               id="name"
               type="text"
               {...register('name')}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="Dr. Jane Smith"
               disabled={isLoading}
             />
@@ -107,11 +107,10 @@ export function SignUpForm({ onSuccess, redirectTo = '/patient' }: SignUpFormPro
 
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <input
+            <Input
               id="email"
               type="email"
               {...register('email')}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="provider@hospital.com"
               disabled={isLoading}
             />
@@ -120,11 +119,10 @@ export function SignUpForm({ onSuccess, redirectTo = '/patient' }: SignUpFormPro
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <input
+            <Input
               id="password"
               type="password"
               {...register('password')}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="••••••••"
               disabled={isLoading}
             />
@@ -135,11 +133,10 @@ export function SignUpForm({ onSuccess, redirectTo = '/patient' }: SignUpFormPro
 
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <input
+            <Input
               id="confirmPassword"
               type="password"
               {...register('confirmPassword')}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="••••••••"
               disabled={isLoading}
             />
@@ -150,11 +147,10 @@ export function SignUpForm({ onSuccess, redirectTo = '/patient' }: SignUpFormPro
 
           <div className="space-y-2">
             <Label htmlFor="organization">Organization (Optional)</Label>
-            <input
+            <Input
               id="organization"
               type="text"
               {...register('organization')}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="Memorial Hospital"
               disabled={isLoading}
             />
@@ -162,11 +158,10 @@ export function SignUpForm({ onSuccess, redirectTo = '/patient' }: SignUpFormPro
 
           <div className="space-y-2">
             <Label htmlFor="specialty">Specialty (Optional)</Label>
-            <input
+            <Input
               id="specialty"
               type="text"
               {...register('specialty')}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="Cardiology"
               disabled={isLoading}
             />
