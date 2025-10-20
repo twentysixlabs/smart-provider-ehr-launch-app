@@ -19,9 +19,8 @@ const db = new Database(dbPath);
 export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
   database: {
-    // Using SQLite with better-sqlite3
+    provider: 'sqlite',
     db,
-    type: 'sqlite',
   },
   emailAndPassword: {
     enabled: true,
@@ -42,7 +41,6 @@ export const auth = betterAuth({
         type: 'string',
         required: false,
         defaultValue: 'clinician',
-        input: false, // Don't allow direct input
       },
       organization: {
         type: 'string',
@@ -51,7 +49,6 @@ export const auth = betterAuth({
       npi: {
         type: 'string', // National Provider Identifier for US healthcare providers
         required: false,
-        unique: true,
       },
       specialty: {
         type: 'string',
@@ -62,19 +59,12 @@ export const auth = betterAuth({
   plugins: [
     nextCookies(), // Enable Next.js cookie handling
   ],
-  // Security settings
   advanced: {
     generateId: () => {
       // Generate secure IDs
       return crypto.randomUUID();
     },
-    crossSubDomainCookies: {
-      enabled: false, // Enable if you need cross-subdomain auth
-    },
   },
   // Trust proxy for deployment behind reverse proxy
   trustedOrigins: env.TRUSTED_ORIGINS?.split(',') || [],
 });
-
-// Export the auth type for client usage
-export type Auth = typeof auth;

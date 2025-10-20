@@ -1,19 +1,20 @@
 'use client';
 
 import { LogOut, User as UserIcon } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { PatientBanner } from '@/components/patient/patient-banner';
 import { PatientDataTabs } from '@/components/patient/patient-data-tabs';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
-import Config from '@/config/config.json';
 import { useAuth } from '@/hooks/use-auth';
 import { usePatientQuery } from '@/hooks/use-fhir-query';
 import { storage } from '@/lib/storage';
 import { useTokenStore } from '@/stores/token-store';
+import type { AppConfig } from '@/types';
+import configData from '@/config/config.json';
+
+const Config = configData as AppConfig;
 
 export default function PatientPage() {
-  const router = useRouter();
   const { user, signOut: authSignOut } = useAuth();
   const token = useTokenStore((state) => state.token);
   const clearToken = useTokenStore((state) => state.clearToken);

@@ -6,8 +6,11 @@ import { useEffect, useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
-import Config from '@/config/config.json';
 import { initializeSmartAuth } from '@/lib/smart-auth';
+import type { AppConfig } from '@/types';
+import configData from '@/config/config.json';
+
+const Config = configData as AppConfig;
 
 export default function SmartLoginPage() {
   const searchParams = useSearchParams();

@@ -6,11 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import {
   extractBloodPressureComponents,
-  formatCodeableConcept,
-  formatObservationValue,
   roundToTwoDecimalsOrInteger,
 } from '@/lib/fhir-utils';
-import type { Bundle, Encounter, Resource } from '@medplum/fhirtypes';
+import type { Bundle, Encounter, Resource, Observation } from '@medplum/fhirtypes';
 
 type FhirBundle<T extends Resource> = Bundle<T>;
 type FhirEncounter = Encounter;
@@ -112,14 +110,7 @@ function ResourcePreview({
 
 function getResourcePreviewContent(resource: FhirResource, resourceType?: string): React.ReactNode {
   if (resourceType === 'vital-signs' && resource.resourceType === 'Observation') {
-    const obs = resource as FhirResource & {
-      code?: { text?: string };
-      component?: Array<{
-        code?: { coding?: Array<{ code?: string; display?: string }> };
-        valueQuantity?: { value?: number; unit?: string };
-      }>;
-      valueQuantity?: { value?: number; unit?: string };
-    };
+    const obs = resource as Observation;
 
     const bp = extractBloodPressureComponents(obs);
     if (bp) {

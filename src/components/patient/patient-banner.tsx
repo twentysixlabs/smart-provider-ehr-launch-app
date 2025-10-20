@@ -10,7 +10,7 @@ import { formatGender, formatPatientName, getPatientAge } from '@/lib/fhir-utils
 import { formatDate } from '@/lib/utils';
 
 interface PatientBannerProps {
-  patient: FhirPatient | null;
+  patient: Patient | null;
   isLoading: boolean;
   error: Error | null;
 }

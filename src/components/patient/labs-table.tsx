@@ -63,7 +63,7 @@ export function LabsTable({ observations, isLoading, error }: LabsTableProps) {
                 </td>
                 <td className="px-4 py-3 font-mono">
                   {formatObservationValue(obs)}
-                  {obs.referenceRange && obs.referenceRange.length > 0 && (
+                  {obs.referenceRange && obs.referenceRange.length > 0 && obs.referenceRange[0] && (
                     <span className="ml-2 text-xs text-muted-foreground">
                       (Ref: {obs.referenceRange[0].low?.value ?? '?'} -{' '}
                       {obs.referenceRange[0].high?.value ?? '?'})

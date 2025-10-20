@@ -8,11 +8,10 @@
 
 import { useRouter } from 'next/navigation';
 import { signOut as authSignOut, useSession } from '@/lib/auth-client';
-import type { Session, User } from '@/types/auth';
 
 export function useAuth() {
   const router = useRouter();
-  const { data: session, isPending, error } = useSession();
+  const session = useSession();
 
   const signOut = async () => {
     await authSignOut();
@@ -21,11 +20,11 @@ export function useAuth() {
   };
 
   return {
-    user: session?.user as User | null,
-    session: session as Session | null,
-    isLoading: isPending,
-    error,
+    user: session.data?.user ?? null,
+    session: session.data ?? null,
+    isLoading: session.isPending,
+    error: session.error ?? null,
     signOut,
-    isAuthenticated: !!session?.user,
+    isAuthenticated: !!session.data?.user,
   };
 }

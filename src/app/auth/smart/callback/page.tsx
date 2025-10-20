@@ -7,9 +7,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
-import Config from '@/config/config.json';
 import { handleOAuthCallback } from '@/lib/smart-auth';
 import { useTokenStore } from '@/stores/token-store';
+import type { AppConfig } from '@/types';
+import configData from '@/config/config.json';
+
+const Config = configData as AppConfig;
 
 export default function SmartCallbackPage() {
   const searchParams = useSearchParams();
