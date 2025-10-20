@@ -122,4 +122,65 @@ export class AthenaAdapter extends BaseAdapter implements VendorAdapter {
       throw this.handleError(error);
     }
   }
+
+  /**
+   * Override create to handle Athena rate limiting
+   */
+  override async createResource<T extends Resource>(
+    url: string,
+    resource: Omit<T, 'id' | 'meta'>,
+    token: string
+  ): Promise<import('@/types/write-operations').WriteResult<T>> {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/fhir+json',
+          Accept: 'application/fhir+json',
+        },
+        body: JSON.stringify(resource),
+      });
+
+      // Handle rate limiting
+      if (response.status === 429) {
+        await this.handleRateLimit(response);
+        // Retry the request
+        return this.createResource(url, resource, token);
+      }
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: `Failed to create resource: ${response.status} ${response.statusText}`,
+          statusCode: response.status,
+        };
+      }
+
+      const created = (await response.json()) as T;
+      return {
+        success: true,
+        resource: created,
+        statusCode: response.status,
+      };
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Athena write support
+   *
+   * Athena supports write for most resource types
+   */
+  override supportsWrite(resourceType: string): boolean {
+    const athenaWritableResources = [
+      'DocumentReference',
+      'Observation',
+      'MedicationRequest',
+      'AllergyIntolerance',
+      'Condition', // Athena supports Condition writes
+    ];
+    return athenaWritableResources.includes(resourceType);
+  }
 }

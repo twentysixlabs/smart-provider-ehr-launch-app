@@ -3,6 +3,7 @@
 import { LogOut, User as UserIcon } from 'lucide-react';
 import { PatientBanner } from '@/components/patient/patient-banner';
 import { PatientDataTabs } from '@/components/patient/patient-data-tabs';
+import { NoteEditor } from '@/components/patient/note-editor';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import configData from '@/config/config.json';
@@ -66,14 +67,21 @@ export default function PatientPage() {
       <PatientBanner patient={patient ?? null} isLoading={isLoadingPatient} error={patientError} />
 
       {/* Main Content */}
-      <main className="container py-6">
-        <div className="mb-6">
+      <main className="container py-6 space-y-6">
+        <div>
           <p className="text-muted-foreground">
             Welcome to the SMART on FHIR Provider EHR Launch example application!
           </p>
         </div>
 
+        {/* Patient Data (Read Operations) */}
         <PatientDataTabs fhirBaseUrl={fhirBaseUrl} token={token} />
+
+        {/* Clinical Note Editor (Write Operations) */}
+        <section>
+          <h2 className="text-2xl font-bold mb-4">Write Operations</h2>
+          <NoteEditor />
+        </section>
       </main>
     </div>
   );

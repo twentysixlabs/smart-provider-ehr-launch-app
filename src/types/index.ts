@@ -11,6 +11,9 @@ export * from './smart';
 // Re-export Vendor types
 export * from './vendor';
 
+// Re-export Write Operations types
+export * from './write-operations';
+
 // Component prop types
 export interface BaseComponentProps {
   className?: string;

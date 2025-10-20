@@ -86,4 +86,95 @@ export class CernerAdapter extends BaseAdapter implements VendorAdapter {
       Prefer: 'return=representation', // Return created/updated resource
     };
   }
+
+  /**
+   * Override create to add Cerner-specific headers
+   */
+  override async createResource<T extends Resource>(
+    url: string,
+    resource: Omit<T, 'id' | 'meta'>,
+    token: string
+  ): Promise<import('@/types/write-operations').WriteResult<T>> {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          ...this.getWriteHeaders(),
+        },
+        body: JSON.stringify(resource),
+      });
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: `Failed to create resource: ${response.status} ${response.statusText}`,
+          statusCode: response.status,
+        };
+      }
+
+      const created = (await response.json()) as T;
+      return {
+        success: true,
+        resource: created,
+        statusCode: response.status,
+      };
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Override update to add Cerner-specific headers
+   */
+  override async updateResource<T extends Resource>(
+    url: string,
+    resourceId: string,
+    resource: T,
+    token: string
+  ): Promise<import('@/types/write-operations').WriteResult<T>> {
+    try {
+      const response = await fetch(`${url}/${resourceId}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          ...this.getWriteHeaders(),
+        },
+        body: JSON.stringify(resource),
+      });
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: `Failed to update resource: ${response.status} ${response.statusText}`,
+          statusCode: response.status,
+        };
+      }
+
+      const updated = (await response.json()) as T;
+      return {
+        success: true,
+        resource: updated,
+        statusCode: response.status,
+      };
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Cerner write support
+   *
+   * Cerner supports write for most resource types
+   */
+  override supportsWrite(resourceType: string): boolean {
+    const cernerWritableResources = [
+      'DocumentReference',
+      'Observation',
+      'MedicationRequest',
+      'AllergyIntolerance',
+      'Condition', // Cerner supports Condition writes (unlike Epic)
+    ];
+    return cernerWritableResources.includes(resourceType);
+  }
 }

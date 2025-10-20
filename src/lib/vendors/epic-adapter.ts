@@ -71,4 +71,27 @@ export class EpicAdapter extends BaseAdapter implements VendorAdapter {
     }
     return null;
   }
+
+  /**
+   * Epic write support
+   *
+   * Epic supports write for:
+   * - DocumentReference (clinical notes)
+   * - Observation (lab results, vitals)
+   * - MedicationRequest (prescriptions)
+   * - AllergyIntolerance (allergy list)
+   *
+   * Epic does NOT support write for:
+   * - Condition (read-only)
+   * - Encounter (read-only)
+   */
+  override supportsWrite(resourceType: string): boolean {
+    const epicWritableResources = [
+      'DocumentReference',
+      'Observation',
+      'MedicationRequest',
+      'AllergyIntolerance',
+    ];
+    return epicWritableResources.includes(resourceType);
+  }
 }

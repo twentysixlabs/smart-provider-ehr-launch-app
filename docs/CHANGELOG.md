@@ -7,6 +7,122 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Phase 2: Bi-Directional Write Operations (2025-01-20)
+
+#### FHIR Write Operations
+- **Write Utilities** (`src/lib/fhir-write.ts`)
+  - `createFhirResource()` - Create new FHIR resources (POST)
+  - `updateFhirResource()` - Update existing resources (PUT) with optimistic locking
+  - `deleteFhirResource()` - Delete resources (DELETE)
+  - `retryWriteOperation()` - Exponential backoff retry logic
+  - Vendor-specific header handling (Cerner Prefer header)
+  - Error handling (409 conflicts, 400 validation, 403 permissions)
+
+- **Audit Logging** (`src/lib/audit-logger.ts`)
+  - HIPAA-compliant audit trail for all PHI access
+  - Logs: user, patient, resource, action, timestamp, vendor, IP
+  - `logPHIAccess()` - Log any write/read/delete operation
+  - `getAuditLogs()`, `getPatientAuditLogs()`, `getUserAuditLogs()`, `getWriteAuditLogs()`
+  - Development: localStorage (last 100 logs)
+  - Production-ready for Axiom integration
+
+- **FHIR Validation** (`src/lib/validation/fhir-validator.ts`)
+  - Pre-write validation for FHIR resources
+  - Resource-specific rules (DocumentReference, Observation, MedicationRequest, etc.)
+  - `validateFhirResource()` - Returns errors and warnings
+  - `isValidFhirResource()` - Quick boolean check
+
+#### Vendor Write Adapters
+- **Base Adapter** - Added write methods to interface
+  - `createResource()`, `updateResource()`, `deleteResource()`
+  - `supportsWrite()` - Capability checking
+
+- **Epic Adapter**
+  - Write support: DocumentReference, Observation, MedicationRequest, AllergyIntolerance
+  - Read-only: Condition, Encounter
+  - Scope conversion for writes (.write → .ws)
+
+- **Cerner Adapter**
+  - Write support: DocumentReference, Observation, MedicationRequest, AllergyIntolerance, Condition
+  - Adds `Prefer: return=representation` header
+  - Returns created/updated resource
+
+- **Athena Adapter**
+  - Write support: DocumentReference, Observation, MedicationRequest, AllergyIntolerance, Condition
+  - Automatic rate limit handling (10 req/sec)
+  - Retry on 429 with Retry-After header
+
+#### React Hooks
+- **`useCreateFhirResource<T>()`** (`src/hooks/use-fhir-mutation.ts`)
+  - React Query mutation for creating resources
+  - Auto-invalidates cache on success
+  - Captures user context for audit
+
+- **`useUpdateFhirResource<T>()`**
+  - React Query mutation for updates
+  - Handles version conflicts (409)
+  - Optimistic locking support
+
+- **`useDeleteFhirResource()`**
+  - React Query mutation for deletes
+  - Confirmation and cleanup
+
+#### UI Components
+- **Clinical Note Editor** (`src/components/patient/note-editor.tsx`)
+  - Full-featured DocumentReference creation
+  - Form fields: title, category, status, content
+  - Categories: progress-note, consultation, discharge-summary, history-and-physical
+  - LOINC code mapping for categories
+  - Real-time validation with Zod
+  - Success/error alerts
+  - Vendor capability checking
+  - Patient context validation
+
+- **Patient Page** (`src/app/patient/page.tsx`)
+  - Added "Write Operations" section
+  - Clinical note editor integration
+  - Clean separation of read and write operations
+
+#### Types
+- **Write Operations Types** (`src/types/write-operations.ts`)
+  - WriteResult, WriteContext, WriteOptions
+  - AuditLogEntry (HIPAA audit structure)
+  - ValidationResult, ValidationError, ValidationWarning
+  - ClinicalNoteData, LabOrderData, MedicationData
+
+- **Type Exports** (`src/types/index.ts`)
+  - Export write-operations types
+
+#### Testing
+- **Integration Tests** (`tests/integration/fhir-write.test.ts`)
+  - Create operations (success and failure)
+  - Update operations (success and version conflicts)
+  - Delete operations (success and 404)
+  - Vendor-specific header tests (Cerner Prefer)
+
+#### Documentation
+- **Write Operations Guide** (`docs/WRITE_OPERATIONS.md`)
+  - Complete guide with usage examples
+  - Vendor-specific considerations
+  - API reference
+  - Troubleshooting guide
+  - Security and compliance notes
+
+- **Phase 2 Summary** (`PHASE_2_IMPLEMENTATION_SUMMARY.md`)
+  - Complete implementation documentation
+  - Architecture diagrams
+  - Testing guide
+  - Next steps
+
+#### Modified Files
+- `src/lib/vendors/base-adapter.ts` - Added write methods
+- `src/lib/vendors/epic-adapter.ts` - Write support and capability checking
+- `src/lib/vendors/cerner-adapter.ts` - Write methods with Cerner headers
+- `src/lib/vendors/athena-adapter.ts` - Write methods with rate limiting
+- `src/app/patient/page.tsx` - Added note editor
+- `src/types/index.ts` - Export write types
+- `docs/WRITE_OPERATIONS.md` - Complete rewrite
+
 ### Added - Phase 1: Multi-Vendor EHR Integration (2025-01-20)
 
 #### Vendor Adapter Infrastructure
