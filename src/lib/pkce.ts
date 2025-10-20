@@ -33,7 +33,7 @@ function base64URLEncode(array: Uint8Array): string {
 export async function generatePKCEChallenge(): Promise<PKCEChallenge> {
   const codeVerifier = generateCodeVerifier();
   const codeChallenge = await generateCodeChallenge(codeVerifier);
-  
+
   return {
     codeVerifier,
     codeChallenge,

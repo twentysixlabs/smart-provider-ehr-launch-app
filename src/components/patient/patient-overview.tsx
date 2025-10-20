@@ -1,28 +1,28 @@
 'use client';
 
 import {
-  useObservationsQuery,
-  useMedicationRequestsQuery,
-  useConditionsQuery,
+  Activity,
+  AlertCircle,
+  Heart,
+  Pill,
+  Shield,
+  Smartphone,
+  Stethoscope,
+  Syringe,
+} from 'lucide-react';
+import { motion } from 'motion/react';
+import {
   useAllergiesQuery,
-  useImmunizationsQuery,
+  useConditionsQuery,
   useDevicesQuery,
   useEncounterQuery,
+  useImmunizationsQuery,
+  useMedicationRequestsQuery,
+  useObservationsQuery,
 } from '@/hooks/use-fhir-query';
 import type { TokenData } from '@/types';
 import { DataCard } from './data-card';
 import { LabsTable } from './labs-table';
-import {
-  Heart,
-  Pill,
-  Stethoscope,
-  AlertCircle,
-  Syringe,
-  Smartphone,
-  Shield,
-  Activity,
-} from 'lucide-react';
-import { motion } from 'motion/react';
 
 interface PatientOverviewProps {
   fhirBaseUrl: string | null;
@@ -45,47 +45,53 @@ const item = {
 };
 
 export function PatientOverview({ fhirBaseUrl, token }: PatientOverviewProps) {
-  const { data: vitalSigns, isLoading: loadingVitals, error: vitalsError } = useObservationsQuery(
-    fhirBaseUrl,
-    token,
-    'vital-signs'
-  );
+  const {
+    data: vitalSigns,
+    isLoading: loadingVitals,
+    error: vitalsError,
+  } = useObservationsQuery(fhirBaseUrl, token, 'vital-signs');
 
-  const { data: observations, isLoading: loadingObs, error: obsError } = useObservationsQuery(
-    fhirBaseUrl,
-    token,
-    'laboratory'
-  );
+  const {
+    data: observations,
+    isLoading: loadingObs,
+    error: obsError,
+  } = useObservationsQuery(fhirBaseUrl, token, 'laboratory');
 
-  const { data: medications, isLoading: loadingMeds, error: medsError } = useMedicationRequestsQuery(
-    fhirBaseUrl,
-    token
-  );
+  const {
+    data: medications,
+    isLoading: loadingMeds,
+    error: medsError,
+  } = useMedicationRequestsQuery(fhirBaseUrl, token);
 
-  const { data: conditions, isLoading: loadingConds, error: condsError } = useConditionsQuery(
-    fhirBaseUrl,
-    token
-  );
+  const {
+    data: conditions,
+    isLoading: loadingConds,
+    error: condsError,
+  } = useConditionsQuery(fhirBaseUrl, token);
 
-  const { data: allergies, isLoading: loadingAllergies, error: allergiesError } = useAllergiesQuery(
-    fhirBaseUrl,
-    token
-  );
+  const {
+    data: allergies,
+    isLoading: loadingAllergies,
+    error: allergiesError,
+  } = useAllergiesQuery(fhirBaseUrl, token);
 
-  const { data: immunizations, isLoading: loadingImmunizations, error: immunizationsError } = useImmunizationsQuery(
-    fhirBaseUrl,
-    token
-  );
+  const {
+    data: immunizations,
+    isLoading: loadingImmunizations,
+    error: immunizationsError,
+  } = useImmunizationsQuery(fhirBaseUrl, token);
 
-  const { data: devices, isLoading: loadingDevices, error: devicesError } = useDevicesQuery(
-    fhirBaseUrl,
-    token
-  );
+  const {
+    data: devices,
+    isLoading: loadingDevices,
+    error: devicesError,
+  } = useDevicesQuery(fhirBaseUrl, token);
 
-  const { data: encounter, isLoading: loadingEncounter, error: encounterError } = useEncounterQuery(
-    fhirBaseUrl,
-    token
-  );
+  const {
+    data: encounter,
+    isLoading: loadingEncounter,
+    error: encounterError,
+  } = useEncounterQuery(fhirBaseUrl, token);
 
   return (
     <div className="space-y-6">
@@ -198,11 +204,7 @@ export function PatientOverview({ fhirBaseUrl, token }: PatientOverviewProps) {
           </div>
         </div>
         <div className="px-4 py-5 sm:p-6">
-          <LabsTable
-            observations={observations ?? null}
-            isLoading={loadingObs}
-            error={obsError}
-          />
+          <LabsTable observations={observations ?? null} isLoading={loadingObs} error={obsError} />
         </div>
       </motion.div>
     </div>

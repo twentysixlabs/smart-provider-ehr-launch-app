@@ -346,14 +346,12 @@
 
   /* Fonts */
   --font-sans:
-    var(--font-sans), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-serif:
-    var(--font-heading), ui-serif, Georgia, Cambria, "Times New Roman", Times,
-    serif;
+    var(--font-sans), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+  --font-serif: var(--font-heading), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-heading:
-    var(--font-heading), ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    var(--font-heading), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
 
   /* Custom Breakpoints */
   --breakpoint-xxs: 24rem;
@@ -373,8 +371,7 @@
 
   /* Custom Shadows */
   --shadow-modal:
-    0 0 3px rgba(4, 4, 52, 0.09), 0 12px 16px rgba(4, 4, 52, 0.01),
-    0 22px 28px rgba(4, 4, 52, 0.04);
+    0 0 3px rgba(4, 4, 52, 0.09), 0 12px 16px rgba(4, 4, 52, 0.01), 0 22px 28px rgba(4, 4, 52, 0.04);
 
   /* Custom Animations */
   --animate-accordion-down: accordion-down 0.2s ease-out;
@@ -383,8 +380,8 @@
   --animate-fade-out: fade-out 0.3s ease-out;
   --animate-marquee: marquee var(--duration) linear infinite;
   --animate-ticker-move: ticker-move linear infinite;
-  --animate-scroll: scroll var(--animation-duration, 40s)
-    var(--animation-direction, forwards) linear infinite;
+  --animate-scroll: scroll var(--animation-duration, 40s) var(--animation-direction, forwards)
+    linear infinite;
   --animate-slide: slide var(--speed) ease-in-out infinite alternate;
   --animate-spinner: spinner 1.2s linear infinite;
   --animate-fade-up: fade-up 0.5s;

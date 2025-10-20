@@ -1,16 +1,16 @@
 'use client';
 
+import { AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
-import type { FhirBundle, FhirEncounter, FhirResource } from '@/types';
 import {
   extractBloodPressureComponents,
   formatCodeableConcept,
   formatObservationValue,
   roundToTwoDecimalsOrInteger,
 } from '@/lib/fhir-utils';
+import type { FhirBundle, FhirEncounter, FhirResource } from '@/types';
 
 interface DataCardProps {
   title: string;
@@ -48,9 +48,7 @@ export function DataCard({
         ) : error ? (
           <Alert variant="destructive" className="py-2">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription className="text-xs">
-              {error.message}
-            </AlertDescription>
+            <AlertDescription className="text-xs">{error.message}</AlertDescription>
           </Alert>
         ) : (
           <div className="space-y-2">
@@ -91,9 +89,7 @@ function DataPreview({
         );
       })}
       {data.entry.length > previewCount && (
-        <p className="text-xs text-muted-foreground">
-          +{data.entry.length - previewCount} more
-        </p>
+        <p className="text-xs text-muted-foreground">+{data.entry.length - previewCount} more</p>
       )}
     </div>
   );
@@ -175,9 +171,7 @@ function getResourcePreviewContent(resource: FhirResource, resourceType?: string
       <>
         <span className="font-medium">{allergy.code?.text || 'Unknown allergy'}</span>
         {allergy.reaction?.[0]?.severity && (
-          <span className="ml-2 text-xs text-destructive">
-            ({allergy.reaction[0].severity})
-          </span>
+          <span className="ml-2 text-xs text-destructive">({allergy.reaction[0].severity})</span>
         )}
       </>
     );
@@ -207,7 +201,7 @@ function getResourcePreviewContent(resource: FhirResource, resourceType?: string
 
 function EncounterPreview({ encounter }: { encounter: Encounter }) {
   const classDisplay = encounter.class?.display || 'Unknown type';
-  
+
   return (
     <div className="space-y-1 text-sm">
       <p className="font-medium">{classDisplay}</p>

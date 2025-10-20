@@ -28,7 +28,7 @@
       "@/config/*": ["./src/config/*"]
     },
     "types": ["vitest/globals", "@testing-library/jest-dom"],
-    
+
     // Strict type checking options
     "noUnusedLocals": true,
     "noUnusedParameters": true,

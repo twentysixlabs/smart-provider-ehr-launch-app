@@ -1,9 +1,9 @@
 import type {
-  Patient,
+  CodeableConcept,
   HumanName,
   Observation,
-  CodeableConcept,
   ObservationComponent,
+  Patient,
 } from '@medplum/fhirtypes';
 
 /**

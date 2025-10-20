@@ -1,20 +1,16 @@
 /**
  * Authentication Middleware
- * 
+ *
  * Protects routes that require authentication to YOUR backend.
  * Note: This is separate from SMART on FHIR authentication.
  */
 
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
 import { betterFetch } from '@better-fetch/fetch';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
 // Routes that require authentication to your backend
-const protectedRoutes = [
-  '/patient',
-  '/dashboard',
-  '/settings',
-];
+const protectedRoutes = ['/patient', '/dashboard', '/settings'];
 
 // Public routes that don't require auth
 const publicRoutes = [

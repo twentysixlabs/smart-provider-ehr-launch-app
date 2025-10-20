@@ -1,6 +1,6 @@
 /**
  * Better Auth Configuration
- * 
+ *
  * This handles authentication to YOUR backend services.
  * This is separate from SMART on FHIR authentication to the EHR.
  */

@@ -1,13 +1,13 @@
 'use client';
 
+import { AlertCircle } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
-import { initializeSmartAuth } from '@/lib/smart-auth';
 import Config from '@/config/config.json';
+import { initializeSmartAuth } from '@/lib/smart-auth';
 
 export default function SmartLoginPage() {
   const searchParams = useSearchParams();
@@ -27,7 +27,13 @@ export default function SmartLoginPage() {
 
     const redirectUri = `${Config.BASE_URL}/auth/smart/callback`;
 
-    initializeSmartAuth(iss, Config.CLIENT_ID, redirectUri, Config.SMART_SCOPES, launch ?? undefined)
+    initializeSmartAuth(
+      iss,
+      Config.CLIENT_ID,
+      redirectUri,
+      Config.SMART_SCOPES,
+      launch ?? undefined
+    )
       .then((authUrl) => {
         // Redirect to authorization server
         window.location.href = authUrl;

@@ -1,15 +1,15 @@
 'use client';
 
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, CheckCircle2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import Config from '@/config/config.json';
 import { handleOAuthCallback } from '@/lib/smart-auth';
 import { useTokenStore } from '@/stores/token-store';
-import Config from '@/config/config.json';
 
 export default function SmartCallbackPage() {
   const searchParams = useSearchParams();
@@ -31,7 +31,7 @@ export default function SmartCallbackPage() {
       return;
     }
 
-    if (!code || !state) {
+    if (!(code && state)) {
       setError('Missing authorization code or state parameter');
       setIsProcessing(false);
       return;
@@ -70,11 +70,7 @@ export default function SmartCallbackPage() {
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
-            <Button
-              onClick={() => router.push('/')}
-              variant="outline"
-              className="w-full"
-            >
+            <Button onClick={() => router.push('/')} variant="outline" className="w-full">
               Return to Home
             </Button>
           </CardContent>

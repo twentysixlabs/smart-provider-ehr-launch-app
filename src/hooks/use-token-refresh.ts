@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
+import Config from '@/config/config.json';
 import { refreshAccessToken } from '@/lib/smart-auth';
 import { useTokenStore } from '@/stores/token-store';
-import Config from '@/config/config.json';
 
 export function useTokenRefresh() {
   const token = useTokenStore((state) => state.token);

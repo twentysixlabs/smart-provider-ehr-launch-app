@@ -3,21 +3,17 @@ import { createEnv } from '@t3-oss/env-nextjs';
 import { z } from 'zod';
 
 export const env = createEnv({
-    shared: {
-        VERCEL_URL: z
-          .string()
-          .optional()
-          .transform((v) => (v ? `https://${v}` : undefined)),
-        VERCEL_ENV: z
-          .enum(['development', 'production', 'test', 'preview'])
-          .default('development'),
-        NODE_ENV: z
-          .enum(['development', 'production', 'test'])
-          .default('development'),
-        PORT: z.coerce.number().default(3000),
-        STAGING: z.boolean().default(false),
-      },
-    /**
+  shared: {
+    VERCEL_URL: z
+      .string()
+      .optional()
+      .transform((v) => (v ? `https://${v}` : undefined)),
+    VERCEL_ENV: z.enum(['development', 'production', 'test', 'preview']).default('development'),
+    NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+    PORT: z.coerce.number().default(3000),
+    STAGING: z.boolean().default(false),
+  },
+  /**
    * Specify your client-side environment variables schema here.
    * For them to be exposed to the client, prefix them with `NEXT_PUBLIC_`.
    */
@@ -47,8 +43,7 @@ export const env = createEnv({
     // client-side environment variables
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   },
-  skipValidation:
-    !!process.env.CI || process.env.npm_lifecycle_event === 'lint',
+  skipValidation: !!process.env.CI || process.env.npm_lifecycle_event === 'lint',
   onInvalidAccess(variable) {
     // biome-ignore lint/suspicious/noConsole: ignore
     console.error('This is the invalid access error', variable);
@@ -59,45 +54,42 @@ export const env = createEnv({
     console.error('This is the validation error', error);
     throw error;
   },
-})
+});
 
 // Determine environment mode
 export enum EnvMode {
-    DEVELOPMENT = 'development',
-    STAGING = 'staging',
-    PRODUCTION = 'production',
+  DEVELOPMENT = 'development',
+  STAGING = 'staging',
+  PRODUCTION = 'production',
+}
+
+export const ENV_MODE = (() => {
+  if (env.NODE_ENV === 'production') {
+    return process.env.STAGING === 'true' ? EnvMode.STAGING : EnvMode.PRODUCTION;
   }
-  
-  export const ENV_MODE = (() => {
-    if (env.NODE_ENV === 'production') {
-      return process.env.STAGING === 'true'
-        ? EnvMode.STAGING
-        : EnvMode.PRODUCTION;
-    }
-    return EnvMode.DEVELOPMENT;
-  })();
-  
-  /**
-   * Environment utility functions for consistent environment detection across the application
-   */
-  
-  /**
-   * Is the application running in production mode
-   */
-  export const isProd = env.NODE_ENV === 'production';
-  
-  /**
-   * Is the application running in development mode
-   */
-  export const isDev = env.NODE_ENV === 'development';
-  
-  /**
-   * Is the application running in test mode
-   */
-  export const isTest = env.NODE_ENV === 'test';
-  
-  /**
-   * Is this the hosted version of the application
-   */
-  export const isHosted =
-    env.NEXT_PUBLIC_APP_URL === 'https://www.healthnotes.ai';
+  return EnvMode.DEVELOPMENT;
+})();
+
+/**
+ * Environment utility functions for consistent environment detection across the application
+ */
+
+/**
+ * Is the application running in production mode
+ */
+export const isProd = env.NODE_ENV === 'production';
+
+/**
+ * Is the application running in development mode
+ */
+export const isDev = env.NODE_ENV === 'development';
+
+/**
+ * Is the application running in test mode
+ */
+export const isTest = env.NODE_ENV === 'test';
+
+/**
+ * Is this the hosted version of the application
+ */
+export const isHosted = env.NEXT_PUBLIC_APP_URL === 'https://www.healthnotes.ai';

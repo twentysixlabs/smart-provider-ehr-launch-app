@@ -1,9 +1,9 @@
 'use client';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PatientOverview } from './patient-overview';
-import { DataViewer } from './data-viewer';
 import type { TokenData } from '@/types';
+import { DataViewer } from './data-viewer';
+import { PatientOverview } from './patient-overview';
 
 interface PatientDataTabsProps {
   fhirBaseUrl: string | null;

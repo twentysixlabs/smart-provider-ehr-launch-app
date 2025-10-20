@@ -1,14 +1,14 @@
 import type { CapabilityStatement } from '@medplum/fhirtypes';
 import type {
-  SmartConfiguration,
-  OAuthState,
-  TokenData,
   AuthorizationParams,
+  OAuthState,
+  SmartConfiguration,
+  TokenData,
   TokenExchangeRequest,
   TokenRefreshRequest,
 } from '@/types';
-import { storage } from './storage';
 import { generatePKCEChallenge } from './pkce';
+import { storage } from './storage';
 import { generateRandomString } from './utils';
 
 const WELL_KNOWN_SMART_CONFIG = '.well-known/smart-configuration';
@@ -28,7 +28,7 @@ export async function fetchSmartConfiguration(fhirBaseUrl: string): Promise<Smar
 
     const config = (await response.json()) as SmartConfiguration;
 
-    if (!config.authorization_endpoint || !config.token_endpoint) {
+    if (!(config.authorization_endpoint && config.token_endpoint)) {
       throw new Error('Invalid SMART configuration: missing required endpoints');
     }
 
@@ -201,10 +201,7 @@ export async function refreshAccessToken(
 /**
  * Make an authenticated FHIR API request
  */
-export async function fetchFhirResource<T>(
-  url: string,
-  accessToken: string
-): Promise<T> {
+export async function fetchFhirResource<T>(url: string, accessToken: string): Promise<T> {
   const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${accessToken}`,

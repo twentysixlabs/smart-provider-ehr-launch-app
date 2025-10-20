@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   reactStrictMode: true,
   poweredByHeader: false,
-  
+
   // For SMART on FHIR, we need to handle external redirects
   async redirects() {
     return [];

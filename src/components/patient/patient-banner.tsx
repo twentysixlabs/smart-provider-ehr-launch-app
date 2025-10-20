@@ -1,13 +1,13 @@
 'use client';
 
+import type { Patient } from '@medplum/fhirtypes';
+import { AlertCircle, User } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, User } from 'lucide-react';
-import type { Patient } from '@medplum/fhirtypes';
-import { formatPatientName, getPatientAge, formatGender } from '@/lib/fhir-utils';
+import { formatGender, formatPatientName, getPatientAge } from '@/lib/fhir-utils';
 import { formatDate } from '@/lib/utils';
-import { motion } from 'motion/react';
 
 interface PatientBannerProps {
   patient: FhirPatient | null;
@@ -35,9 +35,7 @@ export function PatientBanner({ patient, isLoading, error }: PatientBannerProps)
         <div className="container py-4">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Error loading patient: {error.message}
-            </AlertDescription>
+            <AlertDescription>Error loading patient: {error.message}</AlertDescription>
           </Alert>
         </div>
       </div>

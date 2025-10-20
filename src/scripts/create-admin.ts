@@ -1,11 +1,11 @@
 /**
  * Script to create an admin user
- * 
+ *
  * Usage: bun run src/scripts/create-admin.ts
  */
 
+import { createHash } from '@better-auth/utils/hash';
 import Database from 'better-sqlite3';
-import { createHash } from "@better-auth/utils/hash"
 import { env } from '@/env';
 
 const db = new Database('./data/auth.db');
@@ -15,7 +15,7 @@ async function createAdmin() {
   const password = env.ADMIN_PASSWORD || 'admin123';
   const name = env.ADMIN_NAME || 'Admin User';
 
-  const hashedPassword = await createHash("SHA-256").digest(password);
+  const hashedPassword = await createHash('SHA-256').digest(password);
   const id = crypto.randomUUID();
   const now = Date.now();
 

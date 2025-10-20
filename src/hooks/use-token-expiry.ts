@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { TokenData, TokenExpiryInfo } from '@/types';
 
 const MILLISECONDS_PER_SECOND = 1000;
@@ -29,7 +29,7 @@ export function useTokenExpiry(token: TokenData | null): TokenExpiryInfo {
   const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
-    if (!token || !token.token_expiry) {
+    if (!(token && token.token_expiry)) {
       setTimeRemaining('N/A');
       setIsExpired(false);
       return;

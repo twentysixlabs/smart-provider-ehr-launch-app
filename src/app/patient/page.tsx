@@ -1,16 +1,16 @@
 'use client';
 
-import { PatientBanner } from '@/components/patient/patient-banner';
-import { PatientDataTabs } from '@/components/patient/patient-data-tabs';
-import { useTokenStore } from '@/stores/token-store';
-import { storage } from '@/lib/storage';
-import { usePatientQuery } from '@/hooks/use-fhir-query';
-import { ThemeToggle } from '@/components/theme-toggle';
-import { Button } from '@/components/ui/button';
 import { LogOut, User as UserIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/use-auth';
+import { PatientBanner } from '@/components/patient/patient-banner';
+import { PatientDataTabs } from '@/components/patient/patient-data-tabs';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { Button } from '@/components/ui/button';
 import Config from '@/config/config.json';
+import { useAuth } from '@/hooks/use-auth';
+import { usePatientQuery } from '@/hooks/use-fhir-query';
+import { storage } from '@/lib/storage';
+import { useTokenStore } from '@/stores/token-store';
 
 export default function PatientPage() {
   const router = useRouter();
@@ -19,16 +19,17 @@ export default function PatientPage() {
   const clearToken = useTokenStore((state) => state.clearToken);
   const fhirBaseUrl = storage.getItem(Config.STORAGE_KEYS.FHIR_BASE_URL);
 
-  const { data: patient, isLoading: isLoadingPatient, error: patientError } = usePatientQuery(
-    fhirBaseUrl,
-    token
-  );
+  const {
+    data: patient,
+    isLoading: isLoadingPatient,
+    error: patientError,
+  } = usePatientQuery(fhirBaseUrl, token);
 
   const handleLogout = async () => {
     // Clear SMART on FHIR tokens
     clearToken();
     storage.clear();
-    
+
     // Sign out from backend auth
     await authSignOut();
   };
@@ -49,12 +50,7 @@ export default function PatientPage() {
               </div>
             )}
             <ThemeToggle />
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-              className="gap-2"
-            >
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-2">
               <LogOut className="h-4 w-4" />
               Logout
             </Button>
@@ -63,11 +59,7 @@ export default function PatientPage() {
       </header>
 
       {/* Patient Banner */}
-      <PatientBanner
-        patient={patient ?? null}
-        isLoading={isLoadingPatient}
-        error={patientError}
-      />
+      <PatientBanner patient={patient ?? null} isLoading={isLoadingPatient} error={patientError} />
 
       {/* Main Content */}
       <main className="container py-6">

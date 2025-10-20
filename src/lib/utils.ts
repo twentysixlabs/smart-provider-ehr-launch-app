@@ -13,7 +13,7 @@ export function cn(...inputs: ClassValue[]): string {
  */
 export function formatDate(date: string | Date | undefined): string {
   if (!date) return 'N/A';
-  
+
   try {
     const dateObj = typeof date === 'string' ? new Date(date) : date;
     return new Intl.DateTimeFormat('en-US', {
@@ -31,7 +31,7 @@ export function formatDate(date: string | Date | undefined): string {
  */
 export function formatDateShort(date: string | Date | undefined): string {
   if (!date) return 'N/A';
-  
+
   try {
     const dateObj = typeof date === 'string' ? new Date(date) : date;
     return new Intl.DateTimeFormat('en-US', {
@@ -49,7 +49,7 @@ export function formatDateShort(date: string | Date | undefined): string {
  */
 export function formatRelativeTime(date: string | Date | undefined): string {
   if (!date) return 'N/A';
-  
+
   try {
     const dateObj = typeof date === 'string' ? new Date(date) : date;
     const now = new Date();
@@ -58,7 +58,7 @@ export function formatRelativeTime(date: string | Date | undefined): string {
     const diffMin = Math.floor(diffSec / 60);
     const diffHour = Math.floor(diffMin / 60);
     const diffDay = Math.floor(diffHour / 24);
-    
+
     if (diffDay > 30) {
       return formatDateShort(dateObj);
     } else if (diffDay > 0) {
@@ -119,14 +119,10 @@ export function delay(ms: number): Promise<void> {
 /**
  * Safely get a value from an object using a path
  */
-export function getNestedValue<T>(
-  obj: Record<string, unknown>,
-  path: string,
-  defaultValue: T
-): T {
+export function getNestedValue<T>(obj: Record<string, unknown>, path: string, defaultValue: T): T {
   const keys = path.split('.');
   let result: unknown = obj;
-  
+
   for (const key of keys) {
     if (result && typeof result === 'object' && key in result) {
       result = (result as Record<string, unknown>)[key];
@@ -134,6 +130,6 @@ export function getNestedValue<T>(
       return defaultValue;
     }
   }
-  
+
   return (result as T) ?? defaultValue;
 }

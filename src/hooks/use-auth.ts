@@ -1,14 +1,14 @@
 /**
  * Authentication Hook
- * 
+ *
  * Provides access to current user session and auth methods
  */
 
 'use client';
 
-import { useSession, signOut as authSignOut } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
-import type { User, Session } from '@/types/auth';
+import { signOut as authSignOut, useSession } from '@/lib/auth-client';
+import type { Session, User } from '@/types/auth';
 
 export function useAuth() {
   const router = useRouter();

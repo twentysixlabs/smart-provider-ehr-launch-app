@@ -1,10 +1,10 @@
 'use client';
 
-import { Spinner } from '@/components/ui/spinner';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
 import type { Bundle, Observation } from '@medplum/fhirtypes';
-import { formatObservationValue, formatCodeableConcept } from '@/lib/fhir-utils';
+import { AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Spinner } from '@/components/ui/spinner';
+import { formatCodeableConcept, formatObservationValue } from '@/lib/fhir-utils';
 import { formatDateShort } from '@/lib/utils';
 
 interface LabsTableProps {
@@ -31,12 +31,8 @@ export function LabsTable({ observations, isLoading, error }: LabsTableProps) {
     );
   }
 
-  if (!observations || !observations.entry || observations.entry.length === 0) {
-    return (
-      <div className="text-center py-8 text-muted-foreground">
-        No lab results available
-      </div>
-    );
+  if (!(observations && observations.entry) || observations.entry.length === 0) {
+    return <div className="text-center py-8 text-muted-foreground">No lab results available</div>;
   }
 
   return (

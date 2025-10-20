@@ -1,15 +1,15 @@
-import { describe, it, expect } from 'vitest';
+import type { CodeableConcept, HumanName, Patient } from '@medplum/fhirtypes';
+import { describe, expect, it } from 'vitest';
 import {
-  formatPatientName,
-  formatHumanName,
-  formatCodeableConcept,
-  getPatientAge,
-  formatGender,
-  roundToTwoDecimalsOrInteger,
   buildFhirSearchUrl,
   extractResourceId,
+  formatCodeableConcept,
+  formatGender,
+  formatHumanName,
+  formatPatientName,
+  getPatientAge,
+  roundToTwoDecimalsOrInteger,
 } from '../fhir-utils';
-import type { Patient, HumanName, CodeableConcept } from '@medplum/fhirtypes';
 
 describe('fhir-utils', () => {
   describe('formatPatientName', () => {

@@ -1,26 +1,25 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertCircle, CheckCircle2, Clock, RefreshCw } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Spinner } from '@/components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { RefreshCw, Clock } from 'lucide-react';
-import { useTokenStore } from '@/stores/token-store';
+import {
+  useAllergiesQuery,
+  useConditionsQuery,
+  useDevicesQuery,
+  useEncounterQuery,
+  useImmunizationsQuery,
+  useMedicationRequestsQuery,
+  useObservationsQuery,
+  usePatientQuery,
+} from '@/hooks/use-fhir-query';
 import { useTokenExpiry } from '@/hooks/use-token-expiry';
 import { useTokenRefresh } from '@/hooks/use-token-refresh';
-import {
-  usePatientQuery,
-  useEncounterQuery,
-  useObservationsQuery,
-  useMedicationRequestsQuery,
-  useConditionsQuery,
-  useAllergiesQuery,
-  useImmunizationsQuery,
-  useDevicesQuery,
-} from '@/hooks/use-fhir-query';
+import { useTokenStore } from '@/stores/token-store';
 import type { TokenData } from '@/types';
-import { Spinner } from '@/components/ui/spinner';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, CheckCircle2 } from 'lucide-react';
 
 interface DataViewerProps {
   fhirBaseUrl: string | null;
@@ -31,45 +30,53 @@ export function DataViewer({ fhirBaseUrl, token }: DataViewerProps) {
   const expiryInfo = useTokenExpiry(token);
   const { refresh, isRefreshing, error: refreshError, isSuccess } = useTokenRefresh();
 
-  const { data: patient, isLoading: loadingPatient, error: patientError } = usePatientQuery(
-    fhirBaseUrl,
-    token
-  );
+  const {
+    data: patient,
+    isLoading: loadingPatient,
+    error: patientError,
+  } = usePatientQuery(fhirBaseUrl, token);
 
-  const { data: encounter, isLoading: loadingEncounter, error: encounterError } = useEncounterQuery(
-    fhirBaseUrl,
-    token
-  );
+  const {
+    data: encounter,
+    isLoading: loadingEncounter,
+    error: encounterError,
+  } = useEncounterQuery(fhirBaseUrl, token);
 
-  const { data: observations, isLoading: loadingObs, error: obsError } = useObservationsQuery(
-    fhirBaseUrl,
-    token
-  );
+  const {
+    data: observations,
+    isLoading: loadingObs,
+    error: obsError,
+  } = useObservationsQuery(fhirBaseUrl, token);
 
-  const { data: medications, isLoading: loadingMeds, error: medsError } = useMedicationRequestsQuery(
-    fhirBaseUrl,
-    token
-  );
+  const {
+    data: medications,
+    isLoading: loadingMeds,
+    error: medsError,
+  } = useMedicationRequestsQuery(fhirBaseUrl, token);
 
-  const { data: conditions, isLoading: loadingConds, error: condsError } = useConditionsQuery(
-    fhirBaseUrl,
-    token
-  );
+  const {
+    data: conditions,
+    isLoading: loadingConds,
+    error: condsError,
+  } = useConditionsQuery(fhirBaseUrl, token);
 
-  const { data: allergies, isLoading: loadingAllergies, error: allergiesError } = useAllergiesQuery(
-    fhirBaseUrl,
-    token
-  );
+  const {
+    data: allergies,
+    isLoading: loadingAllergies,
+    error: allergiesError,
+  } = useAllergiesQuery(fhirBaseUrl, token);
 
-  const { data: immunizations, isLoading: loadingImmunizations, error: immunizationsError } = useImmunizationsQuery(
-    fhirBaseUrl,
-    token
-  );
+  const {
+    data: immunizations,
+    isLoading: loadingImmunizations,
+    error: immunizationsError,
+  } = useImmunizationsQuery(fhirBaseUrl, token);
 
-  const { data: devices, isLoading: loadingDevices, error: devicesError } = useDevicesQuery(
-    fhirBaseUrl,
-    token
-  );
+  const {
+    data: devices,
+    isLoading: loadingDevices,
+    error: devicesError,
+  } = useDevicesQuery(fhirBaseUrl, token);
 
   return (
     <div className="space-y-6">
@@ -273,16 +280,16 @@ function ResourceDataDisplay({
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <AlertDescription>Error loading {resourceType}: {error.message}</AlertDescription>
+        <AlertDescription>
+          Error loading {resourceType}: {error.message}
+        </AlertDescription>
       </Alert>
     );
   }
 
   if (!data) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        No {resourceType} data available
-      </div>
+      <div className="text-center py-8 text-muted-foreground">No {resourceType} data available</div>
     );
   }
 

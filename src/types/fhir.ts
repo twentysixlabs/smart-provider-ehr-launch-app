@@ -1,65 +1,72 @@
 /**
  * FHIR R4 Type Definitions from @medplum/fhirtypes
- * 
+ *
  * Re-export commonly used FHIR types for convenience
  */
 
 export type {
-  // Base types
-  Resource,
-  DomainResource,
-  Extension,
-  Narrative,
-  Meta,
-  
-  // Data types
-  Identifier,
-  HumanName,
-  ContactPoint,
   Address,
-  CodeableConcept,
-  Coding,
-  Period,
-  Quantity,
-  Reference,
-  Annotation,
-  Range,
-  Ratio,
-  
-  // Resources
-  Patient,
-  Observation,
-  Condition,
-  MedicationRequest,
   AllergyIntolerance,
-  Encounter,
-  Immunization,
-  Device,
+  AllergyIntoleranceReaction,
+  Annotation,
   Bundle,
   BundleEntry,
   BundleLink,
   CapabilityStatement,
-  
+  CodeableConcept,
+  Coding,
+  Condition,
+  ConditionEvidence,
+  ConditionStage,
+  ContactPoint,
+  Device,
+  DeviceName,
+  DeviceUdiCarrier,
+  DomainResource,
+  Dosage,
+  Encounter,
+  EncounterDiagnosis,
+  EncounterLocation,
+  EncounterParticipant,
+  Extension,
+  HumanName,
+  // Data types
+  Identifier,
+  Immunization,
+  ImmunizationPerformer,
+  ImmunizationReaction,
+  MedicationRequest,
+  MedicationRequestDispenseRequest,
+  MedicationRequestSubstitution,
+  Meta,
+  Narrative,
+  Observation,
   // Specific subtypes
   ObservationComponent,
   ObservationReferenceRange,
-  EncounterLocation,
-  EncounterParticipant,
-  EncounterDiagnosis,
-  AllergyIntoleranceReaction,
-  ConditionStage,
-  ConditionEvidence,
-  ImmunizationPerformer,
-  ImmunizationReaction,
-  DeviceUdiCarrier,
-  DeviceName,
-  MedicationRequestDispenseRequest,
-  MedicationRequestSubstitution,
-  Dosage,
+  // Resources
+  Patient,
+  Period,
+  Quantity,
+  Range,
+  Ratio,
+  Reference,
+  // Base types
+  Resource,
 } from '@medplum/fhirtypes';
 
 // Re-export for legacy compatibility
-import type { Patient, Observation, Condition, MedicationRequest, AllergyIntolerance, Encounter, Immunization, Device, Resource } from '@medplum/fhirtypes';
+import type {
+  AllergyIntolerance,
+  Condition,
+  Device,
+  Encounter,
+  Immunization,
+  MedicationRequest,
+  Observation,
+  Patient,
+  Resource,
+} from '@medplum/fhirtypes';
 
 export type FhirPatient = Patient;
 export type FhirObservation = Observation;

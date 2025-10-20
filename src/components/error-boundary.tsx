@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -43,16 +43,12 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                 <AlertCircle className="h-5 w-5" />
                 Something went wrong
               </CardTitle>
-              <CardDescription>
-                An unexpected error occurred in the application
-              </CardDescription>
+              <CardDescription>An unexpected error occurred in the application</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {this.state.error && (
                 <div className="rounded-lg bg-destructive/10 p-4">
-                  <p className="text-sm font-mono text-destructive">
-                    {this.state.error.message}
-                  </p>
+                  <p className="text-sm font-mono text-destructive">{this.state.error.message}</p>
                 </div>
               )}
               <Button

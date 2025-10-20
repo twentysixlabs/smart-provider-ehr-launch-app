@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
+import { useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function Error({
   error,
@@ -24,15 +24,11 @@ export default function Error({
             <AlertCircle className="h-5 w-5" />
             Something went wrong
           </CardTitle>
-          <CardDescription>
-            An unexpected error occurred in the application
-          </CardDescription>
+          <CardDescription>An unexpected error occurred in the application</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="rounded-lg bg-destructive/10 p-4">
-            <p className="text-sm font-mono text-destructive break-words">
-              {error.message}
-            </p>
+            <p className="text-sm font-mono text-destructive break-words">{error.message}</p>
           </div>
           <div className="flex gap-2">
             <Button onClick={() => reset()} className="flex-1">

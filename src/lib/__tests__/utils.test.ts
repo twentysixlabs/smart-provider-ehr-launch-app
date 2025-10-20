@@ -1,12 +1,12 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   cn,
   formatDate,
   formatDateShort,
   formatRelativeTime,
-  safeJsonParse,
   generateRandomString,
   getNestedValue,
+  safeJsonParse,
 } from '../utils';
 
 describe('utils', () => {
@@ -17,7 +17,7 @@ describe('utils', () => {
     });
 
     it('should handle conditional classes', () => {
-      const result = cn('base-class', false && 'hidden', true && 'visible');
+      const result = cn('base-class', false, 'visible');
       expect(result).toBe('base-class visible');
     });
   });

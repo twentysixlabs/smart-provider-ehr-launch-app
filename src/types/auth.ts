@@ -1,6 +1,6 @@
 /**
  * Authentication Types
- * 
+ *
  * Types for better-auth integration
  */
 

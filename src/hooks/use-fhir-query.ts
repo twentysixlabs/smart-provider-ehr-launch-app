@@ -1,8 +1,19 @@
-import { useQuery, type UseQueryOptions, type UseQueryResult } from '@tanstack/react-query';
-import { fetchFhirResource } from '@/lib/smart-auth';
-import type { Bundle, Resource, Patient, Encounter, Observation, MedicationRequest, Condition, AllergyIntolerance, Immunization, Device } from '@medplum/fhirtypes';
-import type { TokenData } from '@/types';
+import type {
+  AllergyIntolerance,
+  Bundle,
+  Condition,
+  Device,
+  Encounter,
+  Immunization,
+  MedicationRequest,
+  Observation,
+  Patient,
+  Resource,
+} from '@medplum/fhirtypes';
+import { type UseQueryOptions, type UseQueryResult, useQuery } from '@tanstack/react-query';
 import { buildFhirSearchUrl } from '@/lib/fhir-utils';
+import { fetchFhirResource } from '@/lib/smart-auth';
+import type { TokenData } from '@/types';
 
 interface UseFhirQueryOptions {
   resourceType: string;
@@ -21,7 +32,7 @@ export function useFhirQuery<T extends Resource>(
   return useQuery<Bundle<T>, Error>({
     queryKey: ['fhir', resourceType, params],
     queryFn: async () => {
-      if (!fhirBaseUrl || !accessToken) {
+      if (!(fhirBaseUrl && accessToken)) {
         throw new Error('Missing FHIR base URL or access token');
       }
 
@@ -43,7 +54,7 @@ export function useFhirResourceQuery<T extends Resource>(
   return useQuery<T, Error>({
     queryKey: ['fhir', resourceType, resourceId],
     queryFn: async () => {
-      if (!fhirBaseUrl || !accessToken || !resourceId) {
+      if (!(fhirBaseUrl && accessToken && resourceId)) {
         throw new Error('Missing required parameters');
       }
 
@@ -56,10 +67,7 @@ export function useFhirResourceQuery<T extends Resource>(
 }
 
 // Specific hooks for common FHIR resources
-export function usePatientQuery(
-  fhirBaseUrl: string | null,
-  token: TokenData | null
-) {
+export function usePatientQuery(fhirBaseUrl: string | null, token: TokenData | null) {
   return useFhirResourceQuery<Patient>(
     fhirBaseUrl,
     token?.access_token ?? null,
@@ -68,10 +76,7 @@ export function usePatientQuery(
   );
 }
 
-export function useEncounterQuery(
-  fhirBaseUrl: string | null,
-  token: TokenData | null
-) {
+export function useEncounterQuery(fhirBaseUrl: string | null, token: TokenData | null) {
   return useFhirResourceQuery<Encounter>(
     fhirBaseUrl,
     token?.access_token ?? null,
@@ -102,10 +107,7 @@ export function useObservationsQuery(
   });
 }
 
-export function useMedicationRequestsQuery(
-  fhirBaseUrl: string | null,
-  token: TokenData | null
-) {
+export function useMedicationRequestsQuery(fhirBaseUrl: string | null, token: TokenData | null) {
   return useFhirQuery<MedicationRequest>(fhirBaseUrl, token?.access_token ?? null, {
     resourceType: 'MedicationRequest',
     params: {
@@ -117,10 +119,7 @@ export function useMedicationRequestsQuery(
   });
 }
 
-export function useConditionsQuery(
-  fhirBaseUrl: string | null,
-  token: TokenData | null
-) {
+export function useConditionsQuery(fhirBaseUrl: string | null, token: TokenData | null) {
   return useFhirQuery<Condition>(fhirBaseUrl, token?.access_token ?? null, {
     resourceType: 'Condition',
     params: {
@@ -131,10 +130,7 @@ export function useConditionsQuery(
   });
 }
 
-export function useAllergiesQuery(
-  fhirBaseUrl: string | null,
-  token: TokenData | null
-) {
+export function useAllergiesQuery(fhirBaseUrl: string | null, token: TokenData | null) {
   return useFhirQuery<AllergyIntolerance>(fhirBaseUrl, token?.access_token ?? null, {
     resourceType: 'AllergyIntolerance',
     params: {
@@ -145,10 +141,7 @@ export function useAllergiesQuery(
   });
 }
 
-export function useImmunizationsQuery(
-  fhirBaseUrl: string | null,
-  token: TokenData | null
-) {
+export function useImmunizationsQuery(fhirBaseUrl: string | null, token: TokenData | null) {
   return useFhirQuery<Immunization>(fhirBaseUrl, token?.access_token ?? null, {
     resourceType: 'Immunization',
     params: {
@@ -160,10 +153,7 @@ export function useImmunizationsQuery(
   });
 }
 
-export function useDevicesQuery(
-  fhirBaseUrl: string | null,
-  token: TokenData | null
-) {
+export function useDevicesQuery(fhirBaseUrl: string | null, token: TokenData | null) {
   return useFhirQuery<Device>(fhirBaseUrl, token?.access_token ?? null, {
     resourceType: 'Device',
     params: {

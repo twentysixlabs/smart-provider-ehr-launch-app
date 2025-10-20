@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { useTokenStore } from '../token-store';
+import { beforeEach, describe, expect, it } from 'vitest';
 import type { TokenData } from '@/types';
+import { useTokenStore } from '../token-store';
 
 describe('tokenStore', () => {
   beforeEach(() => {

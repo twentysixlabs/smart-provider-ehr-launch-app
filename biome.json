@@ -1,17 +1,86 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-  "organizeImports": {
-    "enabled": true
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true,
+    "defaultBranch": "main"
+  },
+  "files": {
+    "ignoreUnknown": false,
+    "includes": [
+      "**",
+      "!**/dist",
+      "!**/build",
+      "!**/out",
+      "!**/.turbo",
+      "!**/.vercel",
+      "!**/.wrangler",
+      "!**/.next",
+      "!**/.expo-shared",
+      "!**/.expo",
+      "!**/.tamagui",
+      "!**/.contentlayer",
+      "!**/.velite",
+      "!**/.mastra",
+      "!**/.sentryclirc",
+      "!**/.cache",
+      "!**/.auth",
+      "!**/.tsbuildinfo",
+      "!**/.bun-debug.log*",
+      "!**/.bun.lock*",
+      "!**/node_modules",
+      "!**/_generated",
+      "!**/generated",
+      "!**/storybook-static",
+      "!**/build-storybook.log",
+      "!**/coverage",
+      "!**/public",
+      "!**/tw-animate.css",
+      "!**/trace/trace.json",
+      "!**/trace/types.json",
+      "!**/*.js.map",
+      "!**/*.d.ts.map"
+    ]
+  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "jsxQuoteStyle": "double",
+      "quoteProperties": "asNeeded",
+      "trailingCommas": "es5",
+      "semicolons": "always",
+      "arrowParentheses": "always",
+      "bracketSpacing": true,
+      "bracketSameLine": false
+    }
+  },
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100,
+    "lineEnding": "lf",
+    "attributePosition": "auto",
+    "bracketSpacing": true
+  },
+  "json": {
+    "formatter": {
+      "enabled": true,
+      "indentWidth": 2
+    }
   },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true,
+      "nursery": "off",
       "a11y": {
         "recommended": true,
         "noAccessKey": "error",
         "noAriaHiddenOnFocusable": "error",
-        "noBlankTarget": "error",
         "useAltText": "error",
         "useAnchorContent": "error",
         "useAriaPropsForRole": "error",
@@ -27,14 +96,12 @@
       },
       "complexity": {
         "noExtraBooleanCast": "error",
-        "noMultipleSpacesInRegularExpressionLiterals": "error",
         "noUselessCatch": "error",
         "noUselessConstructor": "error",
         "noUselessFragments": "error",
         "noUselessLabel": "error",
         "noUselessRename": "error",
         "noUselessSwitchCase": "error",
-        "noWith": "error",
         "useFlatMap": "error",
         "useLiteralKeys": "error",
         "useOptionalChain": "error",
@@ -47,7 +114,6 @@
         "noGlobalObjectCalls": "error",
         "noInnerDeclarations": "error",
         "noInvalidConstructorSuper": "error",
-        "noNewSymbol": "error",
         "noSelfAssign": "error",
         "noUndeclaredVariables": "error",
         "noUnreachable": "error",
@@ -66,8 +132,6 @@
         "noDangerouslySetInnerHtmlWithChildren": "error"
       },
       "style": {
-        "noArguments": "error",
-        "noVar": "error",
         "useConst": "error",
         "useTemplate": "error"
       },
@@ -93,48 +157,8 @@
         "noShadowRestrictedNames": "error",
         "noUnsafeDeclarationMerging": "error",
         "noUnsafeNegation": "error",
-        "useGetterReturn": "error",
-        "useValidTypeof": "error"
+        "useGetterReturn": "error"
       }
     }
-  },
-  "formatter": {
-    "enabled": true,
-    "formatWithErrors": false,
-    "indentStyle": "space",
-    "indentWidth": 2,
-    "lineWidth": 100,
-    "lineEnding": "lf"
-  },
-  "javascript": {
-    "formatter": {
-      "quoteStyle": "single",
-      "jsxQuoteStyle": "double",
-      "quoteProperties": "asNeeded",
-      "trailingCommas": "es5",
-      "semicolons": "always",
-      "arrowParentheses": "always",
-      "bracketSpacing": true,
-      "bracketSameLine": false
-    }
-  },
-  "json": {
-    "formatter": {
-      "enabled": true,
-      "indentWidth": 2
-    }
-  },
-  "files": {
-    "ignore": [
-      "node_modules",
-      ".next",
-      "dist",
-      "build",
-      "coverage",
-      ".vitest",
-      "*.log",
-      ".vercel",
-      ".turbo"
-    ]
   }
 }

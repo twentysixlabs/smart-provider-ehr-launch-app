@@ -15,7 +15,7 @@ class BrowserStorageRepository implements StorageRepository {
 
   getItem(key: string): string | null {
     if (!this.storage) return null;
-    
+
     try {
       return this.storage.getItem(key);
     } catch (error) {
@@ -26,7 +26,7 @@ class BrowserStorageRepository implements StorageRepository {
 
   setItem(key: string, value: string): void {
     if (!this.storage) return;
-    
+
     try {
       this.storage.setItem(key, value);
     } catch (error) {
@@ -36,7 +36,7 @@ class BrowserStorageRepository implements StorageRepository {
 
   removeItem(key: string): void {
     if (!this.storage) return;
-    
+
     try {
       this.storage.removeItem(key);
     } catch (error) {
@@ -46,7 +46,7 @@ class BrowserStorageRepository implements StorageRepository {
 
   clear(): void {
     if (!this.storage) return;
-    
+
     try {
       this.storage.clear();
     } catch (error) {
