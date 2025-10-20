@@ -18,7 +18,6 @@ import {
 } from '@/hooks/use-fhir-query';
 import { useTokenExpiry } from '@/hooks/use-token-expiry';
 import { useTokenRefresh } from '@/hooks/use-token-refresh';
-import { useTokenStore } from '@/stores/token-store';
 import type { TokenData } from '@/types';
 
 interface DataViewerProps {

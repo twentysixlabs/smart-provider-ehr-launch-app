@@ -94,10 +94,11 @@ export function SignUpForm({ onSuccess, redirectTo = '/patient' }: SignUpFormPro
 
           <div className="space-y-2">
             <Label htmlFor="name">Full Name</Label>
-            <Input
+            <input
               id="name"
               type="text"
               {...register('name')}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="Dr. Jane Smith"
               disabled={isLoading}
             />
@@ -106,10 +107,11 @@ export function SignUpForm({ onSuccess, redirectTo = '/patient' }: SignUpFormPro
 
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input
+            <input
               id="email"
               type="email"
               {...register('email')}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="provider@hospital.com"
               disabled={isLoading}
             />
@@ -118,10 +120,11 @@ export function SignUpForm({ onSuccess, redirectTo = '/patient' }: SignUpFormPro
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input
+            <input
               id="password"
               type="password"
               {...register('password')}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="••••••••"
               disabled={isLoading}
             />
@@ -132,10 +135,11 @@ export function SignUpForm({ onSuccess, redirectTo = '/patient' }: SignUpFormPro
 
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input
+            <input
               id="confirmPassword"
               type="password"
               {...register('confirmPassword')}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="••••••••"
               disabled={isLoading}
             />
@@ -146,10 +150,11 @@ export function SignUpForm({ onSuccess, redirectTo = '/patient' }: SignUpFormPro
 
           <div className="space-y-2">
             <Label htmlFor="organization">Organization (Optional)</Label>
-            <Input
+            <input
               id="organization"
               type="text"
               {...register('organization')}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="Memorial Hospital"
               disabled={isLoading}
             />
@@ -157,10 +162,11 @@ export function SignUpForm({ onSuccess, redirectTo = '/patient' }: SignUpFormPro
 
           <div className="space-y-2">
             <Label htmlFor="specialty">Specialty (Optional)</Label>
-            <Input
+            <input
               id="specialty"
               type="text"
               {...register('specialty')}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="Cardiology"
               disabled={isLoading}
             />

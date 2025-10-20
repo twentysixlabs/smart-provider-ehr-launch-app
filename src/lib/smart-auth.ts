@@ -1,4 +1,3 @@
-import type { CapabilityStatement } from '@medplum/fhirtypes';
 import type {
   AuthorizationParams,
   OAuthState,
