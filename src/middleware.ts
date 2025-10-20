@@ -58,7 +58,7 @@ export async function middleware(request: NextRequest) {
       signInUrl.searchParams.set('from', pathname);
       return NextResponse.redirect(signInUrl);
     }
-  } catch (error) {
+  } catch (_error) {
     // On error, redirect to sign in
     const signInUrl = new URL('/auth/sign-in', request.url);
     signInUrl.searchParams.set('from', pathname);

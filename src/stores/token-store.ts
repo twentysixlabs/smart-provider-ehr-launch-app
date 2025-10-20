@@ -24,7 +24,7 @@ export const useTokenStore = create<TokenStore>()(
         token: null,
 
         setToken: (newToken: TokenData | null) => {
-          if (newToken && newToken.expires_in) {
+          if (newToken?.expires_in) {
             const tokenWithExpiry: TokenData = {
               ...newToken,
               token_expiry: calculateTokenExpiry(newToken.expires_in),
@@ -59,13 +59,13 @@ export const useTokenStore = create<TokenStore>()(
 
         isTokenExpired: () => {
           const token = get().token;
-          if (!(token && token.token_expiry)) return true;
+          if (!token?.token_expiry) return true;
           return token.token_expiry < Date.now();
         },
 
         getTimeUntilExpiry: () => {
           const token = get().token;
-          if (!(token && token.token_expiry)) return 0;
+          if (!token?.token_expiry) return 0;
           const timeRemaining = token.token_expiry - Date.now();
           return Math.max(0, timeRemaining);
         },

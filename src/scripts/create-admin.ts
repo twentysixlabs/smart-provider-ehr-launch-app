@@ -2,7 +2,7 @@
  * Script to create an admin user
  *
  * Usage: NODE_ENV=development bun run src/scripts/create-admin.ts
- * 
+ *
  * Note: Better Auth will automatically hash the password when using the API.
  * This script creates a user directly in the database for initial setup only.
  */
@@ -18,7 +18,7 @@ async function hashPassword(password: string): Promise<string> {
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   const hash = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-  
+
   // Better auth expects bcrypt format, this is just for initial setup
   // For production, use the sign-up API instead
   return `$2a$10$${hash.substring(0, 53)}`; // Mock bcrypt format

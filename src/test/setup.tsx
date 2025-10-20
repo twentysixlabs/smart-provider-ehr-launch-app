@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/performance/noImgElement: mock img element */
 import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
 import { afterEach, beforeEach, vi } from 'vitest';
@@ -26,7 +27,7 @@ vi.mock('next/navigation', () => ({
 vi.mock('next/image', () => ({
   default: (props: Record<string, unknown>) => {
     // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
-    return <img {...props} />;
+    return <img {...props} alt="test" />;
   },
 }));
 

@@ -29,7 +29,7 @@ export function useTokenExpiry(token: TokenData | null): TokenExpiryInfo {
   const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
-    if (!(token && token.token_expiry)) {
+    if (!token?.token_expiry) {
       setTimeRemaining('N/A');
       setIsExpired(false);
       return;
@@ -37,6 +37,7 @@ export function useTokenExpiry(token: TokenData | null): TokenExpiryInfo {
 
     const updateTimeRemaining = () => {
       const now = Date.now();
+      // biome-ignore lint/style/noNonNullAssertion: token_expiry is guaranteed to be set
       const remaining = token.token_expiry! - now;
 
       if (remaining <= 0) {

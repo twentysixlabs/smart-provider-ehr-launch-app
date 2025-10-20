@@ -93,7 +93,7 @@ export function PatientBanner({ patient, isLoading, error }: PatientBannerProps)
                     <span className="font-medium text-muted-foreground">DOB:</span>{' '}
                     <span>{formatDate(patient.birthDate)}</span>
                   </div>
-                  {patient.identifier && patient.identifier[0] && (
+                  {patient.identifier?.[0] && (
                     <div>
                       <span className="font-medium text-muted-foreground">MRN:</span>{' '}
                       <span className="font-mono">{patient.identifier[0].value || 'N/A'}</span>

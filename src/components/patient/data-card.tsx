@@ -1,14 +1,11 @@
 'use client';
 
+import type { Bundle, Encounter, Observation, Resource } from '@medplum/fhirtypes';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
-import {
-  extractBloodPressureComponents,
-  roundToTwoDecimalsOrInteger,
-} from '@/lib/fhir-utils';
-import type { Bundle, Encounter, Resource, Observation } from '@medplum/fhirtypes';
+import { extractBloodPressureComponents, roundToTwoDecimalsOrInteger } from '@/lib/fhir-utils';
 
 type FhirBundle<T extends Resource> = Bundle<T>;
 type FhirEncounter = Encounter;

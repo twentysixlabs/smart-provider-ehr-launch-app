@@ -1,20 +1,19 @@
 'use client';
 
 import { AlertCircle } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
+import configData from '@/config/config.json';
 import { initializeSmartAuth } from '@/lib/smart-auth';
 import type { AppConfig } from '@/types';
-import configData from '@/config/config.json';
 
 const Config = configData as AppConfig;
 
 export default function SmartLoginPage() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
 
@@ -50,7 +49,7 @@ export default function SmartLoginPage() {
         );
         setIsInitializing(false);
       });
-  }, [searchParams, router]);
+  }, [searchParams]);
 
   if (error) {
     return (

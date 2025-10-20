@@ -146,7 +146,9 @@ export async function handleOAuthCallback(
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: new URLSearchParams(Object.entries(tokenRequest).map(([k, v]) => [k, String(v)])).toString(),
+    body: new URLSearchParams(
+      Object.entries(tokenRequest).map(([k, v]) => [k, String(v)])
+    ).toString(),
   });
 
   if (!response.ok) {
@@ -185,7 +187,9 @@ export async function refreshAccessToken(
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: new URLSearchParams(Object.entries(refreshRequest).map(([k, v]) => [k, String(v)])).toString(),
+    body: new URLSearchParams(
+      Object.entries(refreshRequest).map(([k, v]) => [k, String(v)])
+    ).toString(),
   });
 
   if (!response.ok) {

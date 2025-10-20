@@ -90,6 +90,7 @@
         "useIframeTitle": "error",
         "useKeyWithClickEvents": "error",
         "useKeyWithMouseEvents": "error",
+        "useSemanticElements": "off",
         "useValidAnchor": "error",
         "useValidAriaProps": "error",
         "useValidAriaValues": "error"
@@ -124,6 +125,7 @@
         "useExhaustiveDependencies": "warn",
         "useHookAtTopLevel": "error",
         "useIsNan": "error",
+        "useUniqueElementIds": "off",
         "useValidForDirection": "error",
         "useYield": "error"
       },
@@ -136,7 +138,7 @@
         "useTemplate": "error"
       },
       "suspicious": {
-        "noArrayIndexKey": "warn",
+        "noArrayIndexKey": "off",
         "noAsyncPromiseExecutor": "error",
         "noCatchAssign": "error",
         "noClassAssign": "error",
@@ -160,5 +162,24 @@
         "useGetterReturn": "error"
       }
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["**/*.css"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noUnknownFunction": "off",
+            "noUnknownTypeSelector": "off"
+          },
+          "suspicious": {
+            "noUnknownAtRules": "off"
+          },
+          "a11y": {
+            "useGenericFontNames": "off"
+          }
+        }
+      }
+    }
+  ]
 }

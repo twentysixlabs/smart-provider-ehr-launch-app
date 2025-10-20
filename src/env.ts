@@ -45,12 +45,10 @@ export const env = createEnv({
   },
   skipValidation: !!process.env.CI || process.env.npm_lifecycle_event === 'lint',
   onInvalidAccess(variable) {
-    // biome-ignore lint/suspicious/noConsole: ignore
     console.error('This is the invalid access error', variable);
     throw variable;
   },
   onValidationError(error) {
-    // biome-ignore lint/suspicious/noConsole: ignore
     console.error('This is the validation error', error);
     throw error;
   },

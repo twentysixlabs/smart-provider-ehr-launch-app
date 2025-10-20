@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function Error({
+export default function ErrorPage({
   error,
   reset,
 }: {
@@ -35,7 +35,9 @@ export default function Error({
               Try again
             </Button>
             <Button
-              onClick={() => (window.location.href = '/')}
+              onClick={() => {
+                window.location.href = '/';
+              }}
               variant="outline"
               className="flex-1"
             >

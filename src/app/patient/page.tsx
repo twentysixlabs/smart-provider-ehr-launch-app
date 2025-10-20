@@ -5,12 +5,12 @@ import { PatientBanner } from '@/components/patient/patient-banner';
 import { PatientDataTabs } from '@/components/patient/patient-data-tabs';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
+import configData from '@/config/config.json';
 import { useAuth } from '@/hooks/use-auth';
 import { usePatientQuery } from '@/hooks/use-fhir-query';
 import { storage } from '@/lib/storage';
 import { useTokenStore } from '@/stores/token-store';
 import type { AppConfig } from '@/types';
-import configData from '@/config/config.json';
 
 const Config = configData as AppConfig;
 

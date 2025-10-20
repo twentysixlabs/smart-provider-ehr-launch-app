@@ -31,7 +31,7 @@ export function LabsTable({ observations, isLoading, error }: LabsTableProps) {
     );
   }
 
-  if (!(observations && observations.entry) || observations.entry.length === 0) {
+  if (!observations?.entry || observations.entry.length === 0) {
     return <div className="text-center py-8 text-muted-foreground">No lab results available</div>;
   }
 
