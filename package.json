@@ -7,8 +7,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:cerner": "bun test --run && cp src/config/config.cerner.prod.json src/config/config.json && bun run build",
     "build:epic": "bun test --run && cp src/config/config.epic.prod.json src/config/config.json && bun run build",
+    "build:cerner": "bun test --run && cp src/config/config.cerner.prod.json src/config/config.json && bun run build",
+    "build:athena": "bun test --run && cp src/config/config.athena.prod.json src/config/config.json && bun run build",
     "start": "next start",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",

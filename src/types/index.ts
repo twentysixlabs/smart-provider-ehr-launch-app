@@ -8,6 +8,9 @@ export * from './fhir';
 // Re-export SMART types
 export * from './smart';
 
+// Re-export Vendor types
+export * from './vendor';
+
 // Component prop types
 export interface BaseComponentProps {
   className?: string;

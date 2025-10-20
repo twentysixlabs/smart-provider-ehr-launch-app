@@ -40,7 +40,7 @@ export async function fetchSmartConfiguration(fhirBaseUrl: string): Promise<Smar
 }
 
 /**
- * Initialize SMART authorization flow
+ * Initialize SMART authorization flow with vendor-specific handling
  */
 export async function initializeSmartAuth(
   iss: string,
@@ -49,8 +49,15 @@ export async function initializeSmartAuth(
   scopes: string[],
   launch?: string
 ): Promise<string> {
-  // Fetch SMART configuration
-  const config = await fetchSmartConfiguration(iss);
+  // Detect vendor from ISS URL
+  const vendor = detectVendor(iss);
+  const adapter = getVendorAdapter(vendor);
+
+  // Use adapter to format scopes (Epic uses .rs, Cerner/Athena use .read)
+  const formattedScopes = adapter.formatScopes(scopes);
+
+  // Fetch SMART configuration via adapter
+  const config = await adapter.getSmartConfig(iss);
 
   // Generate PKCE challenge
   const pkce = await generatePKCEChallenge();
@@ -58,45 +65,34 @@ export async function initializeSmartAuth(
   // Generate state parameter
   const state = generateRandomString(32);
 
-  // Store OAuth state
-  const oAuthState: OAuthState = {
+  // Store OAuth state with vendor info
+  const oAuthState: OAuthState & { vendor?: VendorType } = {
     state,
     codeVerifier: pkce.codeVerifier,
     iss,
     launch,
     redirectUri,
     timestamp: Date.now(),
+    vendor, // Store vendor type
   };
 
   storage.setItem('oauth-state', JSON.stringify(oAuthState));
   storage.setItem('fhir-base-url', iss);
   storage.setItem('authorization-url', config.authorization_endpoint);
   storage.setItem('token-url', config.token_endpoint);
+  storage.setItem('vendor', vendor); // Store vendor type
 
-  // Build authorization URL
-  const authParams: AuthorizationParams = {
-    response_type: 'code',
-    client_id: clientId,
-    redirect_uri: redirectUri,
-    scope: scopes.join(' '),
+  // Use adapter to build authorization URL (handles vendor-specific params)
+  return adapter.getAuthorizationUrl({
+    iss,
+    clientId,
+    redirectUri,
+    scopes: formattedScopes,
+    launch,
     state,
-    aud: iss,
-    code_challenge: pkce.codeChallenge,
-    code_challenge_method: 'S256',
-  };
-
-  if (launch) {
-    authParams.launch = launch;
-  }
-
-  const authUrl = new URL(config.authorization_endpoint);
-  Object.entries(authParams).forEach(([key, value]) => {
-    if (value !== undefined) {
-      authUrl.searchParams.append(key, value);
-    }
+    codeChallenge: pkce.codeChallenge,
+    codeChallengeMethod: 'S256',
   });
-
-  return authUrl.toString();
 }
 
 /**

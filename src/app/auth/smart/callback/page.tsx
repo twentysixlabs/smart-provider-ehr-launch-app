@@ -10,6 +10,9 @@ import { Spinner } from '@/components/ui/spinner';
 import configData from '@/config/config.json';
 import { handleOAuthCallback } from '@/lib/smart-auth';
 import { useTokenStore } from '@/stores/token-store';
+import { useVendorStore } from '@/stores/vendor-store';
+import { detectVendor } from '@/lib/vendor-detection';
+import { storage } from '@/lib/storage';
 import type { AppConfig } from '@/types';
 
 const Config = configData as AppConfig;
@@ -43,6 +46,14 @@ export default function SmartCallbackPage() {
     handleOAuthCallback(code, state, Config.CLIENT_ID)
       .then((tokenData) => {
         setToken(tokenData);
+        
+        // Store vendor information
+        const fhirBaseUrl = storage.getItem('fhir-base-url');
+        if (fhirBaseUrl) {
+          const vendor = detectVendor(fhirBaseUrl);
+          setVendor(vendor, fhirBaseUrl);
+        }
+        
         setSuccess(true);
         setIsProcessing(false);
 

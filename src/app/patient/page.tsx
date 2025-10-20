@@ -18,6 +18,7 @@ export default function PatientPage() {
   const { user, signOut: authSignOut } = useAuth();
   const token = useTokenStore((state) => state.token);
   const clearToken = useTokenStore((state) => state.clearToken);
+  const clearVendor = useVendorStore((state) => state.clearVendor);
   const fhirBaseUrl = storage.getItem(Config.STORAGE_KEYS.FHIR_BASE_URL);
 
   const {
@@ -29,6 +30,7 @@ export default function PatientPage() {
   const handleLogout = async () => {
     // Clear SMART on FHIR tokens
     clearToken();
+    clearVendor();
     storage.clear();
 
     // Sign out from backend auth
@@ -44,6 +46,7 @@ export default function PatientPage() {
             <h1 className="text-lg font-semibold">SMART on FHIR Provider Launch</h1>
           </div>
           <div className="flex items-center gap-2">
+            <VendorBadge />
             {user && (
               <div className="flex items-center gap-2 mr-2 px-3 py-1 rounded-md bg-muted">
                 <UserIcon className="h-4 w-4" />

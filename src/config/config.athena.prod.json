@@ -1,0 +1,28 @@
+{
+  "CLIENT_ID": "YOUR_ATHENA_CLIENT_ID",
+  "BASE_URL": "https://api.athenahealth.com/fhir/r4/YOUR_PRACTICE_ID",
+  "SMART_SCOPES": [
+    "launch",
+    "launch/patient",
+    "openid",
+    "fhirUser",
+    "patient/Patient.read",
+    "patient/Observation.read",
+    "patient/Condition.read",
+    "patient/MedicationRequest.read",
+    "patient/AllergyIntolerance.read",
+    "patient/Encounter.read",
+    "patient/Immunization.read",
+    "patient/Device.read",
+    "offline_access"
+  ],
+  "STORAGE_KEYS": {
+    "OAUTH_STATE": "smart-oauth-state",
+    "CODE_VERIFIER": "smart-code-verifier",
+    "TOKEN_DATA": "smart-token-data",
+    "AUTHORIZATION_URL": "smart-authorization-url",
+    "TOKEN_URL": "smart-token-url",
+    "FHIR_BASE_URL": "smart-fhir-base-url"
+  },
+  "STORAGE_TYPE": "session"
+}
