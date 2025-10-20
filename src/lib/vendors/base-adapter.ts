@@ -5,7 +5,7 @@
  */
 
 import type { Bundle, Resource } from '@medplum/fhirtypes';
-import type { SmartConfiguration, TokenData } from '@/types/smart';
+import type { SmartConfiguration } from '@/types/smart';
 import type { VendorType } from '@/types/vendor';
 import type { WriteResult } from '@/types/write-operations';
 
@@ -26,11 +26,11 @@ export interface VendorAdapter {
   // OAuth configuration
   getSmartConfig(iss: string): Promise<SmartConfiguration>;
   getAuthorizationUrl(params: AuthParams): Promise<string>;
-  
+
   // FHIR read operations
   readResource<T extends Resource>(url: string, token: string): Promise<T>;
   searchResources<T extends Resource>(url: string, token: string): Promise<Bundle<T>>;
-  
+
   // FHIR write operations
   createResource<T extends Resource>(
     url: string,
@@ -44,13 +44,13 @@ export interface VendorAdapter {
     token: string
   ): Promise<WriteResult<T>>;
   deleteResource(url: string, resourceId: string, token: string): Promise<WriteResult>;
-  
+
   // Vendor-specific scope formatting
   formatScopes(scopes: string[]): string[];
-  
+
   // Vendor-specific error handling
   handleError(error: unknown): Error;
-  
+
   // Vendor-specific write capabilities
   supportsWrite(resourceType: string): boolean;
 }
@@ -115,10 +115,7 @@ export abstract class BaseAdapter implements VendorAdapter {
     }
   }
 
-  async searchResources<T extends Resource>(
-    url: string,
-    token: string
-  ): Promise<Bundle<T>> {
+  async searchResources<T extends Resource>(url: string, token: string): Promise<Bundle<T>> {
     try {
       const response = await fetch(url, {
         headers: {
@@ -128,9 +125,7 @@ export abstract class BaseAdapter implements VendorAdapter {
       });
 
       if (!response.ok) {
-        throw new Error(
-          `Failed to search resources: ${response.status} ${response.statusText}`
-        );
+        throw new Error(`Failed to search resources: ${response.status} ${response.statusText}`);
       }
 
       return await response.json();
@@ -210,11 +205,7 @@ export abstract class BaseAdapter implements VendorAdapter {
     }
   }
 
-  async deleteResource(
-    url: string,
-    resourceId: string,
-    token: string
-  ): Promise<WriteResult> {
+  async deleteResource(url: string, resourceId: string, token: string): Promise<WriteResult> {
     try {
       const response = await fetch(`${url}/${resourceId}`, {
         method: 'DELETE',

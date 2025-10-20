@@ -4,8 +4,8 @@
  * Utilities for creating, updating, and deleting FHIR resources
  */
 
-import type { Resource, OperationOutcome } from '@medplum/fhirtypes';
-import type { WriteResult, WriteContext, WriteOptions } from '@/types/write-operations';
+import type { OperationOutcome, Resource } from '@medplum/fhirtypes';
+import type { WriteContext, WriteOptions, WriteResult } from '@/types/write-operations';
 import { logPHIAccess } from './audit-logger';
 import { detectVendor } from './vendor-detection';
 
@@ -20,7 +20,7 @@ export async function createFhirResource<T extends Resource>(
   context: WriteContext,
   options: WriteOptions = {}
 ): Promise<WriteResult<T>> {
-  const { validate = true, skipAudit = false, vendorOptions = {} } = options;
+  const { validate: _unusedValidate = true, skipAudit = false, vendorOptions = {} } = options;
 
   try {
     // Build the resource URL
@@ -44,7 +44,7 @@ export async function createFhirResource<T extends Resource>(
         userId: context.userId,
         userName: context.userName,
         userRole: context.userRole || 'clinician',
-        patientId: extractPatientId(resource),
+        patientId: extractPatientId(resource as Partial<T>),
         resourceType,
         resourceId: 'creating',
         action: 'write',
@@ -287,7 +287,7 @@ function extractPatientId(resource: Partial<Resource>): string {
   const subject = (resource as { subject?: { reference?: string } }).subject;
   if (subject?.reference) {
     const match = subject.reference.match(/Patient\/([^/]+)/);
-    if (match) {
+    if (match?.[1]) {
       return match[1];
     }
   }
@@ -303,7 +303,7 @@ function extractPatientId(resource: Partial<Resource>): string {
 /**
  * Retry a write operation with exponential backoff
  */
-export async function retryWriteOperation<T>(
+export async function retryWriteOperation<T extends Resource>(
   operation: () => Promise<WriteResult<T>>,
   maxRetries = 3,
   initialDelay = 1000

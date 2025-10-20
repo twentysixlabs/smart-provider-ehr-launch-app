@@ -6,13 +6,13 @@
 
 'use client';
 
-import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
-import { createFhirResource, updateFhirResource, deleteFhirResource } from '@/lib/fhir-write';
-import { useTokenStore } from '@/stores/token-store';
-import { useAuth } from './use-auth';
-import { storage } from '@/lib/storage';
 import type { Resource } from '@medplum/fhirtypes';
-import type { WriteResult, WriteOptions } from '@/types/write-operations';
+import { type UseMutationResult, useMutation, useQueryClient } from '@tanstack/react-query';
+import { createFhirResource, deleteFhirResource, updateFhirResource } from '@/lib/fhir-write';
+import { storage } from '@/lib/storage';
+import { useTokenStore } from '@/stores/token-store';
+import type { WriteOptions, WriteResult } from '@/types/write-operations';
+import { useAuth } from './use-auth';
 
 /**
  * Get client IP address (approximation)
@@ -37,7 +37,7 @@ export function useCreateFhirResource<T extends Resource>(
 
   return useMutation({
     mutationFn: async (resource: Omit<T, 'id' | 'meta'>) => {
-      if (!fhirBaseUrl || !token?.access_token || !user) {
+      if (!(fhirBaseUrl && token?.access_token && user)) {
         throw new Error('Missing required authentication');
       }
 
@@ -84,7 +84,7 @@ export function useUpdateFhirResource<T extends Resource>(
 
   return useMutation({
     mutationFn: async ({ resourceId, resource }: { resourceId: string; resource: T }) => {
-      if (!fhirBaseUrl || !token?.access_token || !user) {
+      if (!(fhirBaseUrl && token?.access_token && user)) {
         throw new Error('Missing required authentication');
       }
 
@@ -130,7 +130,7 @@ export function useDeleteFhirResource(
 
   return useMutation({
     mutationFn: async (resourceId: string) => {
-      if (!fhirBaseUrl || !token?.access_token || !user) {
+      if (!(fhirBaseUrl && token?.access_token && user)) {
         throw new Error('Missing required authentication');
       }
 

@@ -6,12 +6,12 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { VendorType, VendorContext } from '@/types/vendor';
+import type { VendorContext, VendorType } from '@/types/vendor';
 
 interface VendorStore {
   vendor: VendorType;
   context: VendorContext | null;
-  
+
   setVendor: (vendor: VendorType, iss: string) => void;
   setContext: (context: VendorContext) => void;
   clearVendor: () => void;

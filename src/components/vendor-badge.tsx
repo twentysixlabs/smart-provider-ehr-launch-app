@@ -7,15 +7,10 @@
 'use client';
 
 import { Building2, HelpCircle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useVendor } from '@/hooks/use-vendor-adapter';
 import { getVendorDisplayName } from '@/lib/vendor-detection';
-import { Badge } from '@/components/ui/badge';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 
 export function VendorBadge() {
   const { vendor } = useVendor();
@@ -54,9 +49,7 @@ export function VendorBadge() {
           <p className="text-sm">
             Connected to <strong>{displayName}</strong> EHR system
           </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Auto-detected from launch URL
-          </p>
+          <p className="text-xs text-muted-foreground mt-1">Auto-detected from launch URL</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

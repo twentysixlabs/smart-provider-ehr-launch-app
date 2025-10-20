@@ -1,11 +1,12 @@
+import { detectVendor, getVendorAdapter } from '@/lib/vendor-detection';
 import type {
-  AuthorizationParams,
   OAuthState,
   SmartConfiguration,
   TokenData,
   TokenExchangeRequest,
   TokenRefreshRequest,
 } from '@/types';
+import type { VendorType } from '@/types/vendor';
 import { generatePKCEChallenge } from './pkce';
 import { storage } from './storage';
 import { generateRandomString } from './utils';

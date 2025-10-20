@@ -4,9 +4,11 @@
  * Athena Health-specific implementation with practice ID handling
  */
 
-import { BaseAdapter } from './base-adapter';
-import type { VendorAdapter } from './base-adapter';
+import type { Bundle, Resource } from '@medplum/fhirtypes';
 import type { SmartConfiguration } from '@/types/smart';
+import type { VendorAdapter } from './base-adapter';
+
+import { BaseAdapter } from './base-adapter';
 
 export class AthenaAdapter extends BaseAdapter implements VendorAdapter {
   name = 'athena' as const;
@@ -14,14 +16,14 @@ export class AthenaAdapter extends BaseAdapter implements VendorAdapter {
   /**
    * Athena uses .read syntax (no transformation needed)
    */
-  formatScopes(scopes: string[]): string[] {
+  override formatScopes(scopes: string[]): string[] {
     return scopes; // Athena uses standard .read syntax
   }
 
   /**
    * Athena requires practice ID in some API calls
    */
-  async getSmartConfig(iss: string): Promise<SmartConfiguration> {
+  override async getSmartConfig(iss: string): Promise<SmartConfiguration> {
     const config = await super.getSmartConfig(iss);
 
     // Extract practice ID from ISS URL if present
@@ -42,7 +44,7 @@ export class AthenaAdapter extends BaseAdapter implements VendorAdapter {
    */
   private extractPracticeIdFromIss(iss: string): string | null {
     const match = iss.match(/\/r4\/([0-9]+)/);
-    return match ? match[1] : null;
+    return match?.[1] ?? null;
   }
 
   /**
@@ -61,7 +63,7 @@ export class AthenaAdapter extends BaseAdapter implements VendorAdapter {
   /**
    * Athena-specific error handling
    */
-  handleError(error: unknown): Error {
+  override handleError(error: unknown): Error {
     if (error instanceof Error) {
       const errorMessage = error.message.toLowerCase();
 
@@ -112,9 +114,7 @@ export class AthenaAdapter extends BaseAdapter implements VendorAdapter {
       }
 
       if (!response.ok) {
-        throw new Error(
-          `Failed to search resources: ${response.status} ${response.statusText}`
-        );
+        throw new Error(`Failed to search resources: ${response.status} ${response.statusText}`);
       }
 
       return await response.json();

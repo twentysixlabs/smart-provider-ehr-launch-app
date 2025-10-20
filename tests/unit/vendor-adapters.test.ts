@@ -2,10 +2,10 @@
  * Vendor Adapter Tests
  */
 
-import { describe, it, expect } from 'vitest';
-import { EpicAdapter } from '@/lib/vendors/epic-adapter';
-import { CernerAdapter } from '@/lib/vendors/cerner-adapter';
+import { describe, expect, it } from 'vitest';
 import { AthenaAdapter } from '@/lib/vendors/athena-adapter';
+import { CernerAdapter } from '@/lib/vendors/cerner-adapter';
+import { EpicAdapter } from '@/lib/vendors/epic-adapter';
 
 describe('EpicAdapter', () => {
   const adapter = new EpicAdapter();
@@ -16,11 +16,7 @@ describe('EpicAdapter', () => {
 
   describe('formatScopes', () => {
     it('converts .read to .rs', () => {
-      const scopes = [
-        'patient/Patient.read',
-        'patient/Observation.read',
-        'patient/Condition.read',
-      ];
+      const scopes = ['patient/Patient.read', 'patient/Observation.read', 'patient/Condition.read'];
       const formatted = adapter.formatScopes(scopes);
 
       expect(formatted).toEqual([
@@ -31,16 +27,10 @@ describe('EpicAdapter', () => {
     });
 
     it('converts .write to .ws', () => {
-      const scopes = [
-        'patient/DocumentReference.write',
-        'patient/MedicationRequest.write',
-      ];
+      const scopes = ['patient/DocumentReference.write', 'patient/MedicationRequest.write'];
       const formatted = adapter.formatScopes(scopes);
 
-      expect(formatted).toEqual([
-        'patient/DocumentReference.ws',
-        'patient/MedicationRequest.ws',
-      ]);
+      expect(formatted).toEqual(['patient/DocumentReference.ws', 'patient/MedicationRequest.ws']);
     });
 
     it('preserves scopes without .read or .write', () => {
@@ -108,11 +98,7 @@ describe('CernerAdapter', () => {
 
   describe('formatScopes', () => {
     it('preserves scopes unchanged', () => {
-      const scopes = [
-        'patient/Patient.read',
-        'patient/Observation.read',
-        'patient/Condition.read',
-      ];
+      const scopes = ['patient/Patient.read', 'patient/Observation.read', 'patient/Condition.read'];
       const formatted = adapter.formatScopes(scopes);
 
       expect(formatted).toEqual(scopes);
@@ -148,8 +134,8 @@ describe('CernerAdapter', () => {
 
       expect(headers).toEqual({
         'Content-Type': 'application/fhir+json',
-        'Accept': 'application/fhir+json',
-        'Prefer': 'return=representation',
+        Accept: 'application/fhir+json',
+        Prefer: 'return=representation',
       });
     });
   });
@@ -164,11 +150,7 @@ describe('AthenaAdapter', () => {
 
   describe('formatScopes', () => {
     it('preserves scopes unchanged', () => {
-      const scopes = [
-        'patient/Patient.read',
-        'patient/Observation.read',
-        'patient/Condition.read',
-      ];
+      const scopes = ['patient/Patient.read', 'patient/Observation.read', 'patient/Condition.read'];
       const formatted = adapter.formatScopes(scopes);
 
       expect(formatted).toEqual(scopes);

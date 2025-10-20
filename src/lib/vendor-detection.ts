@@ -4,11 +4,11 @@
  * Detects EHR vendor from ISS URL and provides vendor adapters
  */
 
-import { EpicAdapter } from './vendors/epic-adapter';
-import { CernerAdapter } from './vendors/cerner-adapter';
+import type { VendorType } from '@/types/vendor';
 import { AthenaAdapter } from './vendors/athena-adapter';
 import type { VendorAdapter } from './vendors/base-adapter';
-import type { VendorType } from '@/types/vendor';
+import { CernerAdapter } from './vendors/cerner-adapter';
+import { EpicAdapter } from './vendors/epic-adapter';
 
 /**
  * Detect vendor from ISS URL

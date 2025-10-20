@@ -4,9 +4,11 @@
  * Cerner/Oracle Health-specific implementation with tenant handling
  */
 
-import { BaseAdapter } from './base-adapter';
-import type { VendorAdapter } from './base-adapter';
+import type { Resource } from '@medplum/fhirtypes';
 import type { SmartConfiguration } from '@/types/smart';
+import type { VendorAdapter } from './base-adapter';
+
+import { BaseAdapter } from './base-adapter';
 
 export class CernerAdapter extends BaseAdapter implements VendorAdapter {
   name = 'cerner' as const;
@@ -14,14 +16,14 @@ export class CernerAdapter extends BaseAdapter implements VendorAdapter {
   /**
    * Cerner uses .read syntax (no transformation needed)
    */
-  formatScopes(scopes: string[]): string[] {
+  override formatScopes(scopes: string[]): string[] {
     return scopes; // Cerner uses standard .read syntax
   }
 
   /**
    * Cerner requires tenant parameter in some scenarios
    */
-  async getSmartConfig(iss: string): Promise<SmartConfiguration> {
+  override async getSmartConfig(iss: string): Promise<SmartConfiguration> {
     const config = await super.getSmartConfig(iss);
 
     // Extract tenant ID from ISS URL if present
@@ -42,13 +44,13 @@ export class CernerAdapter extends BaseAdapter implements VendorAdapter {
    */
   private extractTenantFromIss(iss: string): string | null {
     const match = iss.match(/\/tenant\/([^/]+)/);
-    return match ? match[1] : null;
+    return match?.[1] ?? null;
   }
 
   /**
    * Cerner-specific error handling
    */
-  handleError(error: unknown): Error {
+  override handleError(error: unknown): Error {
     if (error instanceof Error) {
       const errorMessage = error.message.toLowerCase();
 

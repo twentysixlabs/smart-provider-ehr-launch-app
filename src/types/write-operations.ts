@@ -4,7 +4,7 @@
  * Types for FHIR resource creation, update, and deletion
  */
 
-import type { Resource, OperationOutcome } from '@medplum/fhirtypes';
+import type { OperationOutcome, Resource } from '@medplum/fhirtypes';
 
 /**
  * Write operation result

@@ -19,6 +19,7 @@ export interface TokenData {
   tenant?: string;
   id_token?: string;
   token_expiry?: number;
+  fhirUser?: string;
 }
 
 // SMART Configuration from .well-known/smart-configuration

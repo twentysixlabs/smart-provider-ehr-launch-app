@@ -35,7 +35,10 @@ export async function logPHIAccess(entry: AuditLogEntry): Promise<void> {
   // Store in localStorage for demonstration (in production, use Axiom)
   try {
     const existingLogs = getAuditLogs();
-    existingLogs.push(logEntry);
+    existingLogs.push({
+      ...logEntry,
+      timestamp: logEntry.timestamp as string & Date,
+    });
 
     // Keep only last 100 logs in localStorage (prevent overflow)
     const recentLogs = existingLogs.slice(-100);
@@ -49,29 +52,6 @@ export async function logPHIAccess(entry: AuditLogEntry): Promise<void> {
 
   // TODO: Send to Axiom in production
   // await sendToAxiom(logEntry);
-}
-
-/**
- * Send audit log to Axiom (production implementation)
- */
-async function sendToAxiom(entry: AuditLogEntry & { timestamp: string }): Promise<void> {
-  // TODO: Implement Axiom integration
-  // const axiomApiKey = process.env.AXIOM_API_KEY;
-  // const axiomDataset = process.env.AXIOM_DATASET || 'phi-access-logs';
-  //
-  // if (!axiomApiKey) {
-  //   console.warn('AXIOM_API_KEY not set, skipping Axiom logging');
-  //   return;
-  // }
-  //
-  // await fetch('https://api.axiom.co/v1/datasets/' + axiomDataset + '/ingest', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Authorization': `Bearer ${axiomApiKey}`,
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify([entry]),
-  // });
 }
 
 /**

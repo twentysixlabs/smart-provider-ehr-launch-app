@@ -6,19 +6,19 @@
 
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { DocumentReference } from '@medplum/fhirtypes';
+import { AlertCircle, CheckCircle2, FileText, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { AlertCircle, CheckCircle2, FileText, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useCreateFhirResource } from '@/hooks/use-fhir-mutation';
-import { useTokenStore } from '@/stores/token-store';
 import { useVendor } from '@/hooks/use-vendor-adapter';
-import type { DocumentReference } from '@medplum/fhirtypes';
+import { useTokenStore } from '@/stores/token-store';
 
 const noteSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title must be under 200 characters'),
@@ -126,7 +126,8 @@ export function NoteEditor({ onSuccess, onCancel }: NoteEditorProps) {
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
               Write operations are not supported for {vendor} in this configuration.
-              {vendor === 'epic' && ' DocumentReference writes require additional Epic certification.'}
+              {vendor === 'epic' &&
+                ' DocumentReference writes require additional Epic certification.'}
             </AlertDescription>
           </Alert>
         </CardContent>
@@ -142,7 +143,8 @@ export function NoteEditor({ onSuccess, onCancel }: NoteEditorProps) {
           Clinical Note Editor
         </CardTitle>
         <CardDescription>
-          Create a clinical note that will be saved to the patient's chart in {vendor === 'epic' ? 'Epic' : vendor === 'cerner' ? 'Cerner' : 'Athena'}
+          Create a clinical note that will be saved to the patient's chart in{' '}
+          {vendor === 'epic' ? 'Epic' : vendor === 'cerner' ? 'Cerner' : 'Athena'}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -158,9 +160,7 @@ export function NoteEditor({ onSuccess, onCancel }: NoteEditorProps) {
         {createNote.error && (
           <Alert variant="destructive" className="mb-4">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Failed to save note: {createNote.error.message}
-            </AlertDescription>
+            <AlertDescription>Failed to save note: {createNote.error.message}</AlertDescription>
           </Alert>
         )}
 
@@ -242,15 +242,20 @@ Patient presents for follow-up visit. Reviewed medications and discussed treatme
               )}
             </Button>
             {onCancel && (
-              <Button type="button" variant="outline" onClick={onCancel} disabled={createNote.isPending}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+                disabled={createNote.isPending}
+              >
                 Cancel
               </Button>
             )}
           </div>
 
           <p className="text-xs text-muted-foreground">
-            * This action will create a clinical note in the patient's chart. All writes are logged for
-            audit compliance.
+            * This action will create a clinical note in the patient's chart. All writes are logged
+            for audit compliance.
           </p>
         </form>
       </CardContent>

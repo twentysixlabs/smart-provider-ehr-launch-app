@@ -1,16 +1,18 @@
 'use client';
 
 import { LogOut, User as UserIcon } from 'lucide-react';
+import { NoteEditor } from '@/components/patient/note-editor';
 import { PatientBanner } from '@/components/patient/patient-banner';
 import { PatientDataTabs } from '@/components/patient/patient-data-tabs';
-import { NoteEditor } from '@/components/patient/note-editor';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
+import { VendorBadge } from '@/components/vendor-badge';
 import configData from '@/config/config.json';
 import { useAuth } from '@/hooks/use-auth';
 import { usePatientQuery } from '@/hooks/use-fhir-query';
 import { storage } from '@/lib/storage';
 import { useTokenStore } from '@/stores/token-store';
+import { useVendorStore } from '@/stores/vendor-store';
 import type { AppConfig } from '@/types';
 
 const Config = configData as AppConfig;

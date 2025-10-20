@@ -4,9 +4,10 @@
  * Epic-specific implementation with .rs scope syntax
  */
 
-import { BaseAdapter } from './base-adapter';
-import type { VendorAdapter } from './base-adapter';
 import type { TokenData } from '@/types/smart';
+
+import type { VendorAdapter } from './base-adapter';
+import { BaseAdapter } from './base-adapter';
 
 export class EpicAdapter extends BaseAdapter implements VendorAdapter {
   name = 'epic' as const;
@@ -15,7 +16,7 @@ export class EpicAdapter extends BaseAdapter implements VendorAdapter {
    * Epic uses .rs (read scope) syntax instead of .read
    * Example: patient/Observation.rs instead of patient/Observation.read
    */
-  formatScopes(scopes: string[]): string[] {
+  override formatScopes(scopes: string[]): string[] {
     return scopes.map((scope) => {
       if (scope.includes('.read')) {
         return scope.replace('.read', '.rs');
@@ -31,7 +32,7 @@ export class EpicAdapter extends BaseAdapter implements VendorAdapter {
   /**
    * Epic-specific error codes and messages
    */
-  handleError(error: unknown): Error {
+  override handleError(error: unknown): Error {
     if (error instanceof Error) {
       // Check for Epic-specific error patterns
       const errorMessage = error.message.toLowerCase();
@@ -67,7 +68,7 @@ export class EpicAdapter extends BaseAdapter implements VendorAdapter {
     // Epic includes smart_style_url in the token response
     // This URL points to CSS that matches Epic's UI
     if ('smart_style_url' in token) {
-      return (token as Record<string, unknown>).smart_style_url as string;
+      return token.smart_style_url as string;
     }
     return null;
   }

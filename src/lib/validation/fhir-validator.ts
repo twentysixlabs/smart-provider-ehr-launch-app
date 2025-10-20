@@ -5,7 +5,12 @@
  */
 
 import type { Resource } from '@medplum/fhirtypes';
-import type { ValidationResult, ValidationError, ValidationWarning } from '@/types/write-operations';
+
+import type {
+  ValidationError,
+  ValidationResult,
+  ValidationWarning,
+} from '@/types/write-operations';
 
 /**
  * Validate a FHIR resource before write operation
@@ -61,7 +66,7 @@ function validatePatient(
   warnings: ValidationWarning[]
 ): void {
   // Patient should have at least one identifier or name
-  if (!resource.identifier && !resource.name) {
+  if (!(resource.identifier || resource.name)) {
     errors.push({
       field: 'identifier/name',
       message: 'Patient must have at least one identifier or name',
@@ -115,7 +120,7 @@ function validateObservation(
   }
 
   // Should have either value[x] or component
-  if (!resource.valueQuantity && !resource.valueString && !resource.component) {
+  if (!(resource.valueQuantity || resource.valueString || resource.component)) {
     warnings.push({
       field: 'value/component',
       message: 'Observation should have either a value or components',
@@ -130,7 +135,7 @@ function validateObservation(
 function validateDocumentReference(
   resource: Record<string, unknown>,
   errors: ValidationError[],
-  warnings: ValidationWarning[]
+  _warnings: ValidationWarning[]
 ): void {
   // Required: status
   if (!resource.status) {
@@ -142,7 +147,7 @@ function validateDocumentReference(
   }
 
   // Required: content
-  if (!resource.content || !Array.isArray(resource.content) || resource.content.length === 0) {
+  if (!(resource.content && Array.isArray(resource.content)) || resource.content.length === 0) {
     errors.push({
       field: 'content',
       message: 'DocumentReference.content is required and must have at least one entry',
@@ -201,7 +206,7 @@ function validateMedicationRequest(
   }
 
   // Required: medication[x]
-  if (!resource.medicationCodeableConcept && !resource.medicationReference) {
+  if (!(resource.medicationCodeableConcept || resource.medicationReference)) {
     errors.push({
       field: 'medication',
       message: 'MedicationRequest must have medicationCodeableConcept or medicationReference',

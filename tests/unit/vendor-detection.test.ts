@@ -2,15 +2,11 @@
  * Vendor Detection Tests
  */
 
-import { describe, it, expect } from 'vitest';
-import {
-  detectVendor,
-  getVendorAdapter,
-  getVendorDisplayName,
-} from '@/lib/vendor-detection';
-import { EpicAdapter } from '@/lib/vendors/epic-adapter';
-import { CernerAdapter } from '@/lib/vendors/cerner-adapter';
+import { describe, expect, it } from 'vitest';
+import { detectVendor, getVendorAdapter, getVendorDisplayName } from '@/lib/vendor-detection';
 import { AthenaAdapter } from '@/lib/vendors/athena-adapter';
+import { CernerAdapter } from '@/lib/vendors/cerner-adapter';
+import { EpicAdapter } from '@/lib/vendors/epic-adapter';
 
 describe('detectVendor', () => {
   it('detects Epic from ISS URL', () => {
@@ -20,7 +16,9 @@ describe('detectVendor', () => {
   });
 
   it('detects Cerner from ISS URL', () => {
-    expect(detectVendor('https://fhir-myrecord.cerner.com/r4/ec2458f2-1e24-41c8-b71b-0e701af7583d/fhir')).toBe('cerner');
+    expect(
+      detectVendor('https://fhir-myrecord.cerner.com/r4/ec2458f2-1e24-41c8-b71b-0e701af7583d/fhir')
+    ).toBe('cerner');
     expect(detectVendor('https://cernercare.com/fhir/r4')).toBe('cerner');
     expect(detectVendor('https://oracle.com/health/fhir')).toBe('cerner');
   });

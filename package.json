@@ -66,6 +66,7 @@
     "@vitest/ui": "^3.2.4",
     "happy-dom": "^20.0.7",
     "jsdom": "^27.0.1",
+    "prettier": "^3.6.2",
     "tailwindcss": "^4.1.14",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"

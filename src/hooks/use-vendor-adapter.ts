@@ -7,9 +7,9 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useVendorStore } from '@/stores/vendor-store';
 import { detectVendor, getVendorAdapter } from '@/lib/vendor-detection';
 import type { VendorAdapter } from '@/lib/vendors/base-adapter';
+import { useVendorStore } from '@/stores/vendor-store';
 import type { VendorType } from '@/types/vendor';
 
 export function useVendorAdapter(): VendorAdapter | null {

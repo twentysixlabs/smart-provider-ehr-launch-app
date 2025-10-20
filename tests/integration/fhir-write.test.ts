@@ -2,9 +2,9 @@
  * FHIR Write Operations Integration Tests
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { createFhirResource, updateFhirResource, deleteFhirResource } from '@/lib/fhir-write';
 import type { DocumentReference, Observation } from '@medplum/fhirtypes';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { createFhirResource, deleteFhirResource, updateFhirResource } from '@/lib/fhir-write';
 import type { WriteContext } from '@/types/write-operations';
 
 // Mock fetch globally
